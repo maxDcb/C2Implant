@@ -137,13 +137,16 @@ bool Server::sendData(std::string& data)
 		return false;
 	}
 
-	iResult = send(ClientSocket, (char*)&data[0], (int) nbBytes, 0);
-	if (iResult == SOCKET_ERROR) 
+	if(nbBytes!=0)
 	{
-		// printf("send failed: %d\n", WSAGetLastError());
-		closesocket(ClientSocket);
-		reset();
-		return false;
+		iResult = send(ClientSocket, (char*)&data[0], (int) nbBytes, 0);
+		if (iResult == SOCKET_ERROR) 
+		{
+			// printf("send failed: %d\n", WSAGetLastError());
+			closesocket(ClientSocket);
+			reset();
+			return false;
+		}
 	}
 
 	return true;
@@ -169,13 +172,16 @@ bool Server::receive(std::string& data)
 	}
 	data.resize(nbBytes);
 
-	iResult = recv(ClientSocket, &data[0], nbBytes, 0);
-	if (iResult == SOCKET_ERROR) 
+	if(nbBytes!=0)
 	{
-		// printf("recv failed: %d\n", WSAGetLastError());
-		closesocket(ClientSocket);
-		reset();
-		return false;
+		iResult = recv(ClientSocket, &data[0], nbBytes, 0);
+		if (iResult == SOCKET_ERROR) 
+		{
+			// printf("recv failed: %d\n", WSAGetLastError());
+			closesocket(ClientSocket);
+			reset();
+			return false;
+		}
 	}
 
 	return true;
@@ -288,13 +294,16 @@ bool Client::sendData(std::string& data)
 		return false;
 	}
 
-	iResult = send(ConnectSocket, (char*)&data[0], (int) nbBytes, 0);
-	if (iResult == SOCKET_ERROR) 
+	if(nbBytes!=0)
 	{
-		// printf("send failed: %d\n", WSAGetLastError());
-		closesocket(ConnectSocket);
-		reset();
-		return false;
+		iResult = send(ConnectSocket, (char*)&data[0], (int) nbBytes, 0);
+		if (iResult == SOCKET_ERROR) 
+		{
+			// printf("send failed: %d\n", WSAGetLastError());
+			closesocket(ConnectSocket);
+			reset();
+			return false;
+		}
 	}
 
 	return true;
@@ -316,7 +325,7 @@ bool Client::receive(std::string& data)
 	}
 	data.resize(nbBytes);
 
-	if (nbBytes > 0)
+	if(nbBytes!=0)
 	{
 		iResult = recv(ConnectSocket, &data[0], nbBytes, 0);
 		if (iResult == SOCKET_ERROR)

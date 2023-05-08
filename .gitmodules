@@ -19,3 +19,6 @@
 [submodule "thirdParty/coffLoader/coffPacker"]
 	path = thirdParty/coffLoader/coffPacker
 	url = https://github.com/maxDcb/COFFPacker.git
+[submodule "libs/libPipeHandler"]
+	path = libs/libPipeHandler
+	url = https://github.com/maxDcb/libPipeHandler.git
