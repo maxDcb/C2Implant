@@ -20,15 +20,8 @@ Server::Server(int port)
     }
 
 	m_initDone=false;
-	threadInit = new std::thread(&Server::initServer, this);
+	// threadInit = new std::thread(&Server::initServer, this);
 
-}
-
-
-void Server::reset()
-{
-	m_initDone=false;
-	threadInit = new std::thread(&Server::initServer, this);
 }
 
 
@@ -40,7 +33,7 @@ void Server::initServer()
 
 Server::~Server()
 {
-	threadInit->join();
+	// threadInit->join();
 
 	// cleanup
     closesocket(ListenSocket);
@@ -51,6 +44,9 @@ Server::~Server()
 
 void Server::creatServerTcp(int port)
 {
+	if(m_initDone==true)
+		return;
+
 	int iResult;
 
 	ListenSocket = INVALID_SOCKET;
@@ -115,6 +111,10 @@ void Server::creatServerTcp(int port)
     // No longer need server socket
     closesocket(ListenSocket);
 
+	int timeOutMs = 5000;
+	unsigned int  sz = sizeof(timeOutMs);
+    setsockopt(ClientSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeOutMs, sz);
+
 	m_initDone=true;
 }
 
@@ -133,7 +133,7 @@ bool Server::sendData(std::string& data)
 	{
 		// printf("send failed: %d\n", WSAGetLastError());
 		closesocket(ClientSocket);
-		reset();
+		m_initDone=false;
 		return false;
 	}
 
@@ -144,7 +144,7 @@ bool Server::sendData(std::string& data)
 		{
 			// printf("send failed: %d\n", WSAGetLastError());
 			closesocket(ClientSocket);
-			reset();
+			m_initDone=false;
 			return false;
 		}
 	}
@@ -167,7 +167,7 @@ bool Server::receive(std::string& data)
 	{
 		// printf("recv failed: %d\n", WSAGetLastError());
 		closesocket(ClientSocket);
-		reset();
+		m_initDone=false;
 		return false;
 	}
 	data.resize(nbBytes);
@@ -179,7 +179,7 @@ bool Server::receive(std::string& data)
 		{
 			// printf("recv failed: %d\n", WSAGetLastError());
 			closesocket(ClientSocket);
-			reset();
+			m_initDone=false;
 			return false;
 		}
 	}
@@ -202,8 +202,6 @@ Client::Client(std::string& ip, int port)
         // printf("WSAStartup failed with error: %d\n", iResult);
         return ;
     }
-
-	creatClientTcp(m_port, m_ipServer);
 }
 
 
@@ -225,13 +223,20 @@ Client::~Client()
 }
 
 
-void Client::reset()
+bool Client::initConnection()
 {
-	creatClientTcp(m_port, m_ipServer);
+	bool res = creatClientTcp(m_port, m_ipServer);
+	return res;
 }
 
 
-void Client::creatClientTcp(int port, std::string& ip)
+void Client::closeConnection()
+{
+	closesocket(ConnectSocket);
+}
+
+
+bool Client::creatClientTcp(int port, std::string& ip)
 {
 	int iResult;
 
@@ -250,21 +255,19 @@ void Client::creatClientTcp(int port, std::string& ip)
     if ( iResult != 0 ) 
 	{
          // printf("getaddrinfo failed with error: %d\n", iResult);
-        return ;
+        return false;
     }
 
 	// Attempt to connect to an address until one succeeds
 	struct addrinfo *ptr = NULL;
     for(ptr=result; ptr != NULL ;ptr=ptr->ai_next) 
 	{
-
         // Create a SOCKET for connecting to server
-        ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, 
-            ptr->ai_protocol);
+        ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (ConnectSocket == INVALID_SOCKET) 
 		{
              // printf("socket failed with error: %ld\n", WSAGetLastError());
-            return ;
+            return false;
         }
 
         // Connect to server.
@@ -273,12 +276,18 @@ void Client::creatClientTcp(int port, std::string& ip)
 		{
             closesocket(ConnectSocket);
             ConnectSocket = INVALID_SOCKET;
-            continue;
+            return false;
         }
         break;
     }
 
+	int timeOutMs = 1000;
+	unsigned int  sz = sizeof(timeOutMs);
+    setsockopt(ConnectSocket, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeOutMs, sz);
+
 	freeaddrinfo(result);
+
+	return true;
 }
 
 
@@ -290,7 +299,6 @@ bool Client::sendData(std::string& data)
 	{
 		// printf("send failed: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
-		reset();
 		return false;
 	}
 
@@ -301,7 +309,6 @@ bool Client::sendData(std::string& data)
 		{
 			// printf("send failed: %d\n", WSAGetLastError());
 			closesocket(ConnectSocket);
-			reset();
 			return false;
 		}
 	}
@@ -319,8 +326,6 @@ bool Client::receive(std::string& data)
 	{
 		// printf("recv failed: %d\n", WSAGetLastError());
 		closesocket(ConnectSocket);
-		
-		reset();
 		return false;
 	}
 	data.resize(nbBytes);
@@ -332,7 +337,6 @@ bool Client::receive(std::string& data)
 		{
 			// printf("recv failed: %d\n", WSAGetLastError());
 			closesocket(ConnectSocket);
-			reset();
 			return false;
 		}
 	}

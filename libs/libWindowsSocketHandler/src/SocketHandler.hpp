@@ -17,18 +17,18 @@ public:
 	Server(int port);
 	~Server();
 
+	void initServer();
+
 	bool sendData(std::string& data);
 	bool receive(std::string& data);
 
 private:
-	void reset();
-	void initServer();
 	void creatServerTcp(int port);
 
 	bool m_initDone;
 	int m_port;
 
-	std::thread* threadInit;
+	// std::thread* threadInit;
 
 	struct addrinfo *result;
     SOCKET ListenSocket;
@@ -43,12 +43,14 @@ public:
 	Client(std::string& ip, int port);
 	~Client();
 
+	bool initConnection();
+	void closeConnection();
+
 	bool sendData(std::string& data);
 	bool receive(std::string& data);
 
 private:
-	void reset();
-	void creatClientTcp(int port, std::string& ip);
+	bool creatClientTcp(int port, std::string& ip);
 
 	std::string m_ipServer;
 	int m_port;
