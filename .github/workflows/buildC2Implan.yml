@@ -26,4 +26,4 @@ jobs:
 
     - name: Build app for release
       working-directory: ${{github.workspace}}/buildWindows
-      run: msbuild .\C2.sln
+      run: msbuild .\C2Implant.sln /property:Configuration=Release /m:5
