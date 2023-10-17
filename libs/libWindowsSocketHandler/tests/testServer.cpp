@@ -31,7 +31,8 @@ int main()
         }
         else
             std::cout << "Server receive failed" << std::endl;
-  
+
+        server->closeConnection();
     }
     
     delete server;
