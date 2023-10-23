@@ -17,27 +17,32 @@ This development is in education exercises to tackle well know red teaming conce
 * [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64): base64.
 * [json](https://github.com/nlohmann/json): json parser.
 
-### Compilation
-
-#### Windows - Build the Windows Beacon and Modules
+### Compilation - Build the Windows Beacons and Modules
 
 * https://chocolatey.org/install
 * choco install cmake --pre 
 
 git submodule update --init   
 mkdir buildWindows  
-cd buildWindows  
+cd buildWindows 
+
+
+#### Windows x64
+
 with "x64 Native Tools Command Prompt for VS":  
 cmake  -G "Visual Studio 17 2022" ..   
-msbuild .\C2Implant.sln /property:Configuration=Release -m
+msbuild .\C2Implant.sln /property:Configuration=Release -m  
 or  
 compile the generated C2.sln in release with Visual studio (config Runtime Library Multi-threaded (/MT) & Release)   
 
 
-build x86  
-cmake  -G "Visual Studio 17 2022"  -A "Win32" ..   
-msbuild .\C2Implant.sln /property:Configuration=Release -m  
+#### Windows x86
 
+cmake  -G "Visual Studio 17 2022" -A "Win32" ..   
+msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m  
+
+
+#### Production
 
 Beacons are in: "Release\Beacons"  
 Modules DLL in: "Release\Modules"   
