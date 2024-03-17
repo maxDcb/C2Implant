@@ -7,10 +7,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
 
+include_directories(thirdParty/nlohmann/single_include/nlohmann)
+
 add_subdirectory(libs)
 
 add_subdirectory(thirdParty)
-include_directories(thirdParty/nlohmann/single_include/nlohmann)
 include_directories(thirdParty/base64)
 include_directories(thirdParty/donut/include)
 include_directories(thirdParty/coffLoader/coffLoader)
