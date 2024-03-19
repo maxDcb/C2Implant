@@ -17,7 +17,12 @@ include_directories(thirdParty/donut/include)
 include_directories(thirdParty/coffLoader/coffLoader)
 include_directories(thirdParty/MemoryModule)
 
+enable_testing()
+
 add_subdirectory(core/modules)
 add_subdirectory(core/beacon)
+
+add_subdirectory(core/beacon/tests)
+add_subdirectory(core/listener/tests)
 
 
