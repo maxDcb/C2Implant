@@ -43,8 +43,8 @@ jobs:
 
     - name: Prep release
       run: |
-        rm -f Release/Beacons/.gitignore
-        rm -f Release/Modules/.gitignore
+        del Release/Beacons/.gitignore
+        del Release/Modules/.gitignore
 
     - name: Upload release
       uses: svenstaro/upload-release-action@v2
