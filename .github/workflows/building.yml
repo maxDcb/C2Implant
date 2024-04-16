@@ -33,6 +33,6 @@ jobs:
 
     - name: Build app for release
       working-directory: ${{github.workspace}}/build
-      run: msbuild .\C2Implant.sln /property:Configuration=Release -m
+      run: msbuild .\C2Implant.sln /property:Configuration=Release -m:16
 
 
