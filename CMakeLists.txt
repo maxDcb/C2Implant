@@ -7,10 +7,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 
-option(WITH_TESTS "Compile for tests" ON)
+option(WITH_TESTS "Compile for tests" OFF)
+
+message(STATUS "WITH_TESTS is set to ${WITH_TESTS}")
 
 add_definitions(-DBUILD_IMPLANT)
-if(WITH_TESTS)
+if(NOT WITH_TESTS)
+  message(STATUS "[-] Tests are disabled.")
+else()
+  message(STATUS "[+] Tests are enabled.")
   add_definitions(-DBUILD_TESTS)
 endif()
 
