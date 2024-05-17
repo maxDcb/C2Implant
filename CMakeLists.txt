@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 
 project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
 set(CMAKE_BUILD_TYPE Release)
@@ -12,17 +12,11 @@ set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 ## Conan Dependencies
 ##
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-	file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/master/conan.cmake" "${CMAKE_BINARY_DIR}/conan.cmake")
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan_provider.cmake")
+	file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/develop2/conan_provider.cmake" "${CMAKE_BINARY_DIR}/conan_provider.cmake")
 endif()
 
-include(${CMAKE_BINARY_DIR}/conan.cmake)
-
-conan_cmake_configure(REQUIRES spdlog/1.14.1 nlohmann_json/3.11.3 GENERATORS CMakeDeps OPTIONS *:shared=False)
-
-conan_cmake_install(PATH_OR_REFERENCE .
-                    BUILD outdated
-                    SETTINGS compiler.runtime=MT)
+add_definitions(-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${CMAKE_BINARY_DIR}/conan_provider.cmake)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
