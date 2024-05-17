@@ -7,9 +7,6 @@
 [submodule "thirdParty/MemoryModule"]
 	path = thirdParty/MemoryModule
 	url = https://github.com/maxDcb/MemoryModule.git
-[submodule "thirdParty/nlohmann"]
-	path = thirdParty/nlohmann
-	url = https://github.com/nlohmann/json.git
 [submodule "thirdParty/donut"]
 	path = thirdParty/donut
 	url = https://github.com/maxDcb/donut.git

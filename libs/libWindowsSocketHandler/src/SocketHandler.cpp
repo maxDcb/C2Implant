@@ -2,14 +2,13 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-#undef DEBUG_BUILD
-
-#ifdef DEBUG_BUILD
-#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define DEBUG(x) do { std::cout << __FILENAME__ << " - " << __func__ << ": " << x << std::endl; } while (0)
+#if defined(BUILD_TEAMSERVER) || defined(BUILD_TESTS) 
+    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #else
-#define DEBUG(x) do {} while (0)
+    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
 #endif
+
+#include "spdlog/spdlog.h"
 
 using namespace SocketHandler;
 
@@ -29,13 +28,13 @@ Server::~Server()
 
 void Server::initServer()
 {
-	DEBUG("initServer");
+	SPDLOG_DEBUG("initServer");
 
 	WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) 
 	{
-        DEBUG("WSAStartup failed with error: " << iResult);
+        SPDLOG_DEBUG("WSAStartup failed with error: {0}", iResult);
         return;
     }
 
@@ -55,14 +54,14 @@ void Server::initServer()
     iResult = getaddrinfo(NULL, sPort.c_str(), &hints, &result);
     if ( iResult != 0 ) 
 	{
-        DEBUG("getaddrinfo failed with error: " << iResult);
+        SPDLOG_DEBUG("getaddrinfo failed with error: {0}", iResult);
         return ;
     }
 
     m_listenSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (m_listenSocket == INVALID_SOCKET) 
 	{
-        DEBUG("socket failed with error: " << WSAGetLastError());
+        SPDLOG_DEBUG("socket failed with error: {0}", WSAGetLastError());
         freeaddrinfo(result);
         return ;
     }
@@ -70,7 +69,7 @@ void Server::initServer()
     iResult = bind( m_listenSocket, result->ai_addr, (int)result->ai_addrlen);
     if (iResult == SOCKET_ERROR) 
 	{
-        DEBUG("bind failed with error: " << WSAGetLastError());
+        SPDLOG_DEBUG("bind failed with error: {0}", WSAGetLastError());
         freeaddrinfo(result);
         closesocket(m_listenSocket);
         return ;
@@ -81,7 +80,7 @@ void Server::initServer()
     iResult = listen(m_listenSocket, SOMAXCONN);
     if (iResult == SOCKET_ERROR) 
 	{
-        DEBUG("listen failed with error: " << WSAGetLastError());
+        SPDLOG_DEBUG("listen failed with error: {0}", WSAGetLastError());
         closesocket(m_listenSocket);
         return ;
     }
@@ -89,7 +88,7 @@ void Server::initServer()
     m_clientSocket = accept(m_listenSocket, NULL, NULL);
     if (m_clientSocket == INVALID_SOCKET) 
 	{
-        DEBUG("accept failed with error: " << WSAGetLastError());
+        SPDLOG_DEBUG("accept failed with error: {0}", WSAGetLastError());
         closesocket(m_listenSocket);
         return ;
     }
@@ -107,13 +106,13 @@ void Server::initServer()
 
 bool Server::sendData(std::string& data)
 {
-	DEBUG("sendData");
+	SPDLOG_DEBUG("sendData");
 
 	int nbBytes = data.size();
 	int iResult = send(m_clientSocket, (char*)&nbBytes, (int) sizeof(int), 0);
 	if (iResult == SOCKET_ERROR) 
 	{
-		DEBUG("send failed: " << WSAGetLastError());
+		SPDLOG_DEBUG("send failed: {0}", WSAGetLastError());
 		closesocket(m_clientSocket);
 		return false;
 	}
@@ -123,7 +122,7 @@ bool Server::sendData(std::string& data)
 		iResult = send(m_clientSocket, (char*)&data[0], (int) nbBytes, 0);
 		if (iResult == SOCKET_ERROR) 
 		{
-			DEBUG("send failed: " << WSAGetLastError());
+			SPDLOG_DEBUG("send failed: {0}", WSAGetLastError());
 			closesocket(m_clientSocket);
 			return false;
 		}
@@ -135,13 +134,13 @@ bool Server::sendData(std::string& data)
 
 bool Server::receive(std::string& data)
 {
-	DEBUG("receive");
+	SPDLOG_DEBUG("receive");
 
 	int nbBytes=0;
 	int iResult = recv(m_clientSocket, (char*)&nbBytes, sizeof(int), 0);
 	if (iResult == SOCKET_ERROR) 
 	{
-		DEBUG("recv failed: " << WSAGetLastError());
+		SPDLOG_DEBUG("recv failed: {0}", WSAGetLastError());
 		closesocket(m_clientSocket);
 		return false;
 	}
@@ -155,7 +154,7 @@ bool Server::receive(std::string& data)
 			iResult = recv(m_clientSocket, &data[nbBytesReceived], nbBytes-nbBytesReceived, 0);
 			if (iResult == SOCKET_ERROR) 
 			{
-				DEBUG("recv failed: " << WSAGetLastError());
+				SPDLOG_DEBUG("recv failed: {0}", WSAGetLastError());
 				closesocket(m_clientSocket);
 				return false;
 			}
@@ -169,12 +168,12 @@ bool Server::receive(std::string& data)
 
 void Server::closeConnection()
 {
-	DEBUG("closeConnection");
+	SPDLOG_DEBUG("closeConnection");
 
     int iResult = shutdown(m_clientSocket, SD_BOTH);
     if (iResult == SOCKET_ERROR) 
 	{
-        DEBUG("shutdown failed with error: " << WSAGetLastError());
+        SPDLOG_DEBUG("shutdown failed with error: {0}", WSAGetLastError());
         closesocket(m_clientSocket);
         WSACleanup();
         return;
@@ -204,13 +203,13 @@ Client::~Client()
 
 bool Client::initConnection()
 {
-	DEBUG("initConnection");
+	SPDLOG_DEBUG("initConnection");
 
 	WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
     if (iResult != 0) 
 	{
-        DEBUG("WSAStartup failed with error: " << iResult);
+        SPDLOG_DEBUG("WSAStartup failed with error: {0}", iResult);
         return false;
     }
 
@@ -227,7 +226,7 @@ bool Client::initConnection()
     iResult = getaddrinfo(m_ipServer.c_str(), sPort.c_str(), &hints, &result);
     if ( iResult != 0 ) 
 	{
-        DEBUG("getaddrinfo failed with error: " << iResult);
+        SPDLOG_DEBUG("getaddrinfo failed with error: {0}", iResult);
 		WSACleanup();
         return false;
     }
@@ -238,7 +237,7 @@ bool Client::initConnection()
         m_connectSocket = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
         if (m_connectSocket == INVALID_SOCKET) 
 		{
-            DEBUG("socket failed with error: " << WSAGetLastError());
+            SPDLOG_DEBUG("socket failed with error: {0}", WSAGetLastError());
 			freeaddrinfo(result);
 			WSACleanup();
             return false;
@@ -268,13 +267,13 @@ bool Client::initConnection()
 
 bool Client::sendData(std::string& data)
 {
-	DEBUG("sendData");
+	SPDLOG_DEBUG("sendData");
 
 	int nbBytes = data.size();
 	int iResult = send(m_connectSocket, (char*)&nbBytes, (int) sizeof(int), 0);
 	if (iResult == SOCKET_ERROR) 
 	{
-		DEBUG("send failed: " << WSAGetLastError());
+		SPDLOG_DEBUG("send failed: {0}", WSAGetLastError());
 		closesocket(m_connectSocket);
 		return false;
 	}
@@ -284,7 +283,7 @@ bool Client::sendData(std::string& data)
 		iResult = send(m_connectSocket, (char*)&data[0], (int) nbBytes, 0);
 		if (iResult == SOCKET_ERROR) 
 		{
-			DEBUG("send failed: " << WSAGetLastError());
+			SPDLOG_DEBUG("send failed: {0}", WSAGetLastError());
 			closesocket(m_connectSocket);
 			return false;
 		}
@@ -296,14 +295,14 @@ bool Client::sendData(std::string& data)
 
 bool Client::receive(std::string& data)
 {
-	DEBUG("receive");
+	SPDLOG_DEBUG("receive");
 
 	int nbBytes=0;
 	int iResult = recv(m_connectSocket, (char*)&nbBytes, sizeof(int), 0);
 
 	if (iResult == SOCKET_ERROR) 
 	{
-		DEBUG("recv failed: " << WSAGetLastError());
+		SPDLOG_DEBUG("recv failed: {0}", WSAGetLastError());
 		closesocket(m_connectSocket);
 		return false;
 	}
@@ -317,7 +316,7 @@ bool Client::receive(std::string& data)
 			iResult = recv(m_connectSocket, &data[nbBytesReceived], nbBytes-nbBytesReceived, 0);
 			if (iResult == SOCKET_ERROR) 
 			{
-				DEBUG("recv failed: " << WSAGetLastError());
+				SPDLOG_DEBUG("recv failed: {0}", WSAGetLastError());
 				closesocket(m_connectSocket);
 				return false;
 			}
@@ -332,12 +331,12 @@ bool Client::receive(std::string& data)
 
 void Client::closeConnection()
 {
-	DEBUG("closeConnection");
+	SPDLOG_DEBUG("closeConnection");
 
 	int iResult = shutdown(m_connectSocket, SD_BOTH);
 	if (iResult == SOCKET_ERROR) 
 	{
-	    DEBUG("shutdown failed with error: " << WSAGetLastError());
+	    SPDLOG_DEBUG("shutdown failed with error: {0}", WSAGetLastError());
 	    closesocket(m_connectSocket);
 	    WSACleanup();
 	    return ;

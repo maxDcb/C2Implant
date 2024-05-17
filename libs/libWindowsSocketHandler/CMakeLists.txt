@@ -12,6 +12,7 @@ src/SocketHandler.cpp
 include_directories(../src)
 
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
 target_include_directories(${PROJECT_NAME} PUBLIC src)
 
 add_subdirectory(tests)
