@@ -12,11 +12,11 @@ set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 ## Conan Dependencies
 ##
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan_provider.cmake")
-	file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/develop2/conan_provider.cmake" "${CMAKE_BINARY_DIR}/conan_provider.cmake")
-endif()
+# if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan_provider.cmake")
+# 	file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/develop2/conan_provider.cmake" "${CMAKE_BINARY_DIR}/conan_provider.cmake")
+# endif()
 
-add_definitions(-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${CMAKE_BINARY_DIR}/conan_provider.cmake)
+add_definitions(-DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${CMAKE_SOURCE_DIR}/conan_provider.cmake)
 
 set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 

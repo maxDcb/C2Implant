@@ -44,7 +44,7 @@ jobs:
         msbuild-architecture: x64
     
     - name: Configure CMake
-      run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build -DWITH_TESTS=OFF -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=${{github.workspace}}/build/conan_provider.cmake
+      run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build -DWITH_TESTS=OFF
 
     - name: Build app for release
       working-directory: ${{github.workspace}}/build
