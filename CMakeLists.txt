@@ -4,20 +4,22 @@ project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
-set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
+set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
+set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
 
 
 ##
 ## Conan Dependencies
 ##
 
-set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
+# set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
 
-find_package(spdlog REQUIRED)
-find_package(nlohmann_json REQUIRED)
+# find_package(spdlog REQUIRED)
+# find_package(nlohmann_json REQUIRED)
 
-include_directories(${CMAKE_INCLUDE_PATH})
+# include_directories(${CMAKE_INCLUDE_PATH})
+
+include_directories(thirdParty)
 
 
 ##

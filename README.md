@@ -55,7 +55,7 @@ cd buildWindows
 #### Windows x64
 
 with "x64 Native Tools Command Prompt for VS":  
-cmake .. --preset default
+cmake  -G "Visual Studio 17 2022" ..   
 msbuild .\C2Implant.sln /property:Configuration=Release -m  
 or  
 compile the generated C2.sln in release with Visual studio (config Runtime Library Multi-threaded (/MT) & Release)   
@@ -63,7 +63,7 @@ compile the generated C2.sln in release with Visual studio (config Runtime Libra
 
 #### Windows x86
 
-cmake  -G "Visual Studio 17 2022" -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=../conan_provider.cmake -A "Win32" ..   
+cmake  -G "Visual Studio 17 2022" -A "Win32" ..   
 msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m  
 
 
