@@ -55,17 +55,25 @@ cd buildWindows
 #### Windows x64
 
 with "x64 Native Tools Command Prompt for VS":  
+
+```
+# With tests and logs  
+cmake  -G "Visual Studio 17 2022" -DWITH_TESTS=ON ..   
+# Without tests and logs  
 cmake  -G "Visual Studio 17 2022" ..   
 msbuild .\C2Implant.sln /property:Configuration=Release -m  
+```
+
 or  
 compile the generated C2.sln in release with Visual studio (config Runtime Library Multi-threaded (/MT) & Release)   
 
 
 #### Windows x86
 
+```
 cmake  -G "Visual Studio 17 2022" -A "Win32" ..   
 msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m  
-
+```
 
 #### Production
 
