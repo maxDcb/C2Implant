@@ -44,7 +44,9 @@ jobs:
       shell: pwsh
       run: |
         del .\Release\Beacons\.gitignore
+        Move-Item -Path .\Release\Beacons -Destination .\Release\WindowsBeacons
         del .\Release\Modules\.gitignore
+        Move-Item -Path .\Release\Modules -Destination .\Release\WindowsModules
         Compress-Archive -Path .\Release -DestinationPath .\Release.zip
 
     - name: Upload release
