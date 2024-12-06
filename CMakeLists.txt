@@ -55,4 +55,8 @@ if(WITH_TESTS)
     add_subdirectory(core/listener/tests)
 endif()
 
+include_directories(core/beacon)
+include_directories(core/modules/ModuleCmd)
+add_subdirectory(beacon/beacon)
+
 
