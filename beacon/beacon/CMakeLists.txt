@@ -1,18 +1,6 @@
 find_package(PythonInterp)
 find_package(Python)
 
-set(PYTHON_SCRIPT "${CMAKE_SOURCE_DIR}//beacon/beacon/handleConfig.py")
-set(GENERATED_HEADER "${CMAKE_BINARY_DIR}/cryptDef.hpp")
-add_custom_command(
-    OUTPUT ${GENERATED_HEADER}
-    COMMAND ${PYTHON_EXECUTABLE} ${PYTHON_SCRIPT} -o ${GENERATED_HEADER} 
-    COMMENT "Generating header.hpp using handleConfig.py"
-    VERBATIM
-)
-add_custom_target(HandleConfig ALL DEPENDS ${GENERATED_HEADER})
-include_directories(${CMAKE_BINARY_DIR})
-
-
 set(SOURCES_BEACON_HTTP_LAUNCHER
 	BeaconHttpLauncher.cpp
 )
@@ -98,3 +86,17 @@ target_link_libraries(BeaconDnsDll BeaconDnsLib)
 add_custom_command(TARGET BeaconDnsDll POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
 $<TARGET_FILE:BeaconDnsDll> "${CMAKE_SOURCE_DIR}/Release/Beacons/$<TARGET_FILE_NAME:BeaconDnsDll>")
 
+#
+# Generation of encrypted configuration
+#
+set(PYTHON_SCRIPT "${CMAKE_SOURCE_DIR}//beacon/beacon/handleConfig.py")
+set(GENERATED_HEADER "${CMAKE_BINARY_DIR}/cryptDef.hpp")
+add_custom_command(
+    OUTPUT ${GENERATED_HEADER}
+    COMMAND ${PYTHON_EXECUTABLE} ${PYTHON_SCRIPT} -o ${GENERATED_HEADER} 
+    COMMENT "Generating header.hpp using handleConfig.py"
+    VERBATIM
+)
+add_custom_target(HandleConfig ALL DEPENDS ${GENERATED_HEADER})
+add_dependencies(BeaconHttp HandleConfig)
+include_directories(${CMAKE_BINARY_DIR})
