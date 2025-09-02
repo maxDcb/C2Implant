@@ -50,11 +50,6 @@ endif()
 add_subdirectory(core/modules)
 add_subdirectory(core/beacon)
 
-if(WITH_TESTS)
-    add_subdirectory(core/beacon/tests)
-    add_subdirectory(core/listener/tests)
-endif()
-
 include_directories(core/beacon)
 include_directories(core/modules/ModuleCmd)
 add_subdirectory(beacon/beacon)
