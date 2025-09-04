@@ -81,6 +81,19 @@ msbuild .\C2Implant.sln /property:Configuration=Release -m
 
 Alternatively, open the generated `C2Implant.sln` in Visual Studio and build in **Release** mode. Ensure the Runtime Library is set to **Multi-threaded (/MT)**.
 
+Project can also be build with the C2Core package:
+
+```bash
+# download last windows package
+
+set "CMAKE_PREFIX_PATH=path_to_C2Core-Windows" 
+
+cmake -G "Visual Studio 17 2022" ..
+
+msbuild .\C2Implant.sln /property:Configuration=Release -m
+
+```
+
 #### Windows x86
 
 ```bash
