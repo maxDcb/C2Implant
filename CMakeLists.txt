@@ -4,6 +4,8 @@ project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 17)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 
