@@ -70,6 +70,8 @@ else()
     set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
     add_compile_definitions(LIBSSH2_LIBRARY)    # needed for full static lib
     
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+
     FetchContent_Declare(
       libssh2
       GIT_REPOSITORY https://github.com/libssh2/libssh2.git
