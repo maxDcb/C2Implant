@@ -12,15 +12,7 @@ set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
 ## Conan Dependencies
 ##
 
-# set(CMAKE_PREFIX_PATH ${CMAKE_BINARY_DIR})
-
-# find_package(spdlog REQUIRED)
-# find_package(nlohmann_json REQUIRED)
-
-# include_directories(${CMAKE_INCLUDE_PATH})
-
 include_directories(thirdParty)
-
 
 ##
 ## Config Tests et Logs
