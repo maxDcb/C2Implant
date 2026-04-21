@@ -3,3 +3,7 @@ cd libs/libDns && git config --global --add safe.directory $(pwd) && git fetch &
 cd libs/libPipeHandler && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/master && cd -
 cd libs/libSocketHandler && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/master && cd -
 cd libs/libSocks5 && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/master && cd -
+cd thirdParty/MemoryModule && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/master && cd -
+cd thirdParty/coffLoader/coffLoader && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/dev && cd -
+cd thirdParty/coffLoader/coffPacker  && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/master && cd -
+cd thirdParty/donut && git config --global --add safe.directory $(pwd) && git fetch && git rebase origin/master && cd -

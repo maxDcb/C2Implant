@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
 
+add_compile_definitions(
+  NOMINMAX                # <-- disables Windows min/max macros
+)
 
 # --- Decide whether a prefix path was provided (var or env) ---
 set(_prefixes "")
@@ -84,6 +87,7 @@ else()
     add_subdirectory(core/modules)
     add_subdirectory(core/beacon)
 
+    include_directories(core/listener)
     include_directories(core/beacon)
     include_directories(core/modules/ModuleCmd)
     add_subdirectory(beacon/beacon)
