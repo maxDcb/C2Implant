@@ -7,6 +7,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0 -s -flto")
 
+option(WITH_TESTS "Compile for tests" ON)
+
+add_definitions(-DBUILD_IMPLANT)
+if(WITH_TESTS)
+  add_definitions(-DBUILD_TESTS)
+endif()
+
 include_directories(thirdParty/nlohmann/single_include/nlohmann)
 
 add_subdirectory(libs)
@@ -17,12 +24,16 @@ include_directories(thirdParty/donut/include)
 include_directories(thirdParty/coffLoader/coffLoader)
 include_directories(thirdParty/MemoryModule)
 
-enable_testing()
+if(WITH_TESTS)
+    enable_testing()
+endif()
 
 add_subdirectory(core/modules)
 add_subdirectory(core/beacon)
 
-add_subdirectory(core/beacon/tests)
-add_subdirectory(core/listener/tests)
+if(WITH_TESTS)
+    add_subdirectory(core/beacon/tests)
+    add_subdirectory(core/listener/tests)
+endif()
 
 
