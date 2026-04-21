@@ -25,3 +25,6 @@
 [submodule "libs/libSocks5"]
 	path = libs/libSocks5
 	url = https://github.com/maxDcb/libSocks5.git
+[submodule "libs/libSocketHandler"]
+	path = libs/libSocketHandler
+	url = https://github.com/maxDcb/libSocketHandler.git
