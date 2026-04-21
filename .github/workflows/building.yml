@@ -44,8 +44,8 @@ jobs:
     - name: Prep release
       shell: pwsh
       run: |
-        del Release/Beacons/.gitignore
-        del Release/Modules/.gitignore
+        del .\Release\Beacons\.gitignore
+        del .\Release\Modules\.gitignore
         Compress-Archive -Path .\Release -DestinationPath .\Release.zip
 
     - name: Upload release
