@@ -2,13 +2,65 @@
 
 #pragma comment(lib, "ws2_32.lib")
 
-#if defined(BUILD_TEAMSERVER) || defined(BUILD_TESTS) 
-    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
-#else
-    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
-#endif
 
-#include "spdlog/spdlog.h"
+#define SPDLOG_LEVEL_TRACE 0
+#define SPDLOG_LEVEL_DEBUG 1
+#define SPDLOG_LEVEL_INFO 2
+#define SPDLOG_LEVEL_WARN 3
+#define SPDLOG_LEVEL_ERROR 4
+#define SPDLOG_LEVEL_CRITICAL 5
+#define SPDLOG_LEVEL_OFF 6
+
+#if defined(BUILD_TEAMSERVER) || defined(BUILD_TESTS) 
+
+    #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+
+    #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_TRACE
+        #define SPDLOG_TRACE(...) printf(__VA_ARGS__)
+    #else
+        #define SPDLOG_TRACE(...) (void)0
+    #endif
+
+    #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_DEBUG
+        #define SPDLOG_DEBUG(...) printf(__VA_ARGS__)
+    #else
+        #define SPDLOG_DEBUG(...) (void)0
+    #endif
+
+    #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_INFO
+        #define SPDLOG_INFO(...) printf(__VA_ARGS__)
+    #else
+        #define SPDLOG_INFO(...) (void)0
+    #endif
+
+    #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_WARN
+        #define SPDLOG_WARN(...) printf(__VA_ARGS__)
+    #else
+        #define SPDLOG_WARN(...) (void)0
+    #endif
+
+    #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_ERROR
+        #define SPDLOG_ERROR(...) printf(__VA_ARGS__)
+    #else
+        #define SPDLOG_ERROR(...) (void)0
+    #endif
+
+    #if SPDLOG_ACTIVE_LEVEL <= SPDLOG_LEVEL_CRITICAL
+        #define SPDLOG_CRITICAL(...) printf(__VA_ARGS__)
+    #else
+        #define SPDLOG_CRITICAL(...) (void)0
+    #endif
+
+#else
+
+    #define SPDLOG_TRACE(...) (void)0
+    #define SPDLOG_DEBUG(...) (void)0
+    #define SPDLOG_INFO(...) (void)0
+    #define SPDLOG_WARN(...) (void)0
+    #define SPDLOG_ERROR(...) (void)0
+    #define SPDLOG_CRITICAL(...) (void)0
+
+#endif
 
 using namespace SocketHandler;
 
