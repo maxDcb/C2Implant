@@ -29,9 +29,15 @@ mkdir buildWindows
 cd buildWindows  
 with "x64 Native Tools Command Prompt for VS":  
 cmake  -G "Visual Studio 17 2022" ..   
-msbuild .\C2Implant.sln /property:Configuration=Release  
+msbuild .\C2Implant.sln /property:Configuration=Release -m
 or  
 compile the generated C2.sln in release with Visual studio (config Runtime Library Multi-threaded (/MT) & Release)   
+
+
+build x86  
+cmake  -G "Visual Studio 17 2022"  -A "Win32" ..   
+msbuild .\C2Implant.sln /property:Configuration=Release -m  
+
 
 Beacons are in: "Release\Beacons"  
 Modules DLL in: "Release\Modules"   
