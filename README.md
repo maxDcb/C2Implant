@@ -70,10 +70,6 @@ cd buildWindows
 Using the "x64 Native Tools Command Prompt for VS":
 
 ```bash
-# With tests and logging enabled:
-cmake -G "Visual Studio 17 2022" -DWITH_TESTS=ON ..
-
-# Without tests and logging:
 cmake -G "Visual Studio 17 2022" ..
 
 msbuild .\C2Implant.sln /property:Configuration=Release -m

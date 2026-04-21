@@ -61,12 +61,8 @@ else()
     include_directories(thirdParty/coffLoader/coffLoader)
     include_directories(thirdParty/MemoryModule)
 
-    message(STATUS "Build dir: ${CMAKE_BINARY_DIR}")
     set(DONUT_BUILD_DIR "${CMAKE_BINARY_DIR}/thirdParty/donut")
-    message(STATUS "Build dir: ${DONUT_BUILD_DIR}")
-
     add_library(Donut STATIC IMPORTED)
-
     set_target_properties(Donut PROPERTIES
     IMPORTED_LOCATION "${DONUT_BUILD_DIR}/lib/donut.lib"
     )
