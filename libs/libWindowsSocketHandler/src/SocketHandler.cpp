@@ -69,18 +69,6 @@ using namespace SocketHandler;
 Server::Server(int port)
 {
 	m_port = port;
-}
-
-
-Server::~Server()
-{
-	closeConnection();
-}
-
-
-void Server::initServer()
-{
-	SPDLOG_DEBUG("initServer");
 
 	WSADATA wsaData;
     int iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
@@ -89,6 +77,21 @@ void Server::initServer()
         SPDLOG_DEBUG("WSAStartup failed with error: {0}", iResult);
         return;
     }
+}
+
+
+Server::~Server()
+{
+	closeConnection();
+	WSACleanup();
+}
+
+
+void Server::initServer()
+{
+	SPDLOG_DEBUG("initServer");
+
+	int iResult;
 
 	m_listenSocket = INVALID_SOCKET;
     m_clientSocket = INVALID_SOCKET;
