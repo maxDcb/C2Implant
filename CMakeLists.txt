@@ -4,8 +4,8 @@ project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS_RELEASE "/MT")
-set(CMAKE_C_FLAGS_RELEASE "/MT")
+set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
+set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
 
 add_subdirectory(libs)
 
