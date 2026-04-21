@@ -15,15 +15,40 @@ int main()
 
     while(1)
     {
+        std::cout << "InitConnection" << std::endl;
+
+        while(!client->initConnection())
+        {
+            Sleep(1000);
+        }
+        std::cout << "Sending" << std::endl;
+
         string out="Hello";
-        client->sendData(out);
+        bool res = client->sendData(out);
+        if(res)
+        {
+            std::cout << "Sent" << std::endl;
+            std::cout << "Receiving" << std::endl;
 
-        string ret;
-        client->receive(ret);
+            string ret;
+            res = client->receive(ret);
 
-        std::cout << "Client - " << ret << std::endl;
+            if(res)
+            {
+                std::cout << "Received" << std::endl;
+
+                std::cout << "Client - " << ret << std::endl;
+            }
+            else
+                std::cout << "Receive failed" << std::endl;
+        }
+        else
+            std::cout << "Send failed" << std::endl;
+
+        client->closeConnection();
 
         Sleep(1000);    
     }
 
+    delete client;
 }
