@@ -115,3 +115,14 @@ Do not manually force `/MT` through `CMAKE_CXX_FLAGS`; the project uses `CMAKE_M
 
 * Compiled Beacons: `Release\Beacons`
 * Compiled Module DLLs: `Release\Modules`
+
+### CI/CD Contract
+
+GitHub Actions builds and tests the Windows Release configuration on pull requests, branch pushes, tags, and manual runs.
+
+The release archive is staged from a clean artifact directory. It does not rename or delete the local `Release\Beacons` and `Release\Modules` folders.
+
+`Release.zip` contains only the deliverables consumed by `C2TeamServer` releases:
+
+* `WindowsBeacons`: Beacon executables and DLLs
+* `WindowsModules`: module DLLs

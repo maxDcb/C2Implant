@@ -98,3 +98,11 @@ For Windows-facing changes, validate with a real Visual Studio build when possib
 - Watch specifically for `LNK2038 RuntimeLibrary` and unresolved CRT externals from Conan libraries. Those usually mean a `/MD` vs `/MT` mismatch between local targets and Conan packages.
 
 Warnings currently exist in the tree, especially around macro redefinitions from vendored dependencies. Do not confuse those with the transport-link regressions described above.
+
+## CI/CD Contract
+
+- CI must run on pull requests and branch pushes, not only on release tags.
+- CD must publish only the Windows Beacon and Module deliverables consumed by `C2TeamServer`.
+- Do not mutate `Release/Beacons` or `Release/Modules` during packaging. Copy deliverables into a clean staging directory, then zip the staging directory.
+- Keep the release archive layout stable: `WindowsBeacons/` and `WindowsModules/`.
+- If a test is not stable enough for CI, fix or isolate it explicitly; do not silently remove the full CTest step.

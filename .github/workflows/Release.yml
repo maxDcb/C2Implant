@@ -1,61 +1,186 @@
-name: Release
+name: CI CD
 
-on: 
+on:
   workflow_dispatch:
+  pull_request:
   push:
+    branches:
+      - "**"
     tags:
-      - '*'
+      - "*"
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_DIR: build-conan
   BUILD_TYPE: Release
+  RELEASE_ZIP: Release.zip
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  buildAndRelease:
-    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
-    # You can convert this to a matrix build if you need cross-platform coverage.
-    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
-    runs-on: windows-latest
+  build-test:
+    name: Build and test Windows deliverables
+    runs-on: windows-2022
 
     steps:
-    - uses: actions/checkout@v4
-    
-    # Update references
-    - name: Git Sumbodule Update
-      run: |
-        git submodule update --init
-        
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v1.1.3
-      with:
-        msbuild-architecture: x64
-    
-    - name: Configure CMake
-      run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
-    - name: Build app for release
-      working-directory: ${{github.workspace}}/build
-      run: msbuild .\C2Implant.sln /property:Configuration=Release -m:16
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
 
-    - name: Prep release
-      shell: pwsh
-      run: |
-        del .\Release\Beacons\.gitignore
-        Move-Item -Path .\Release\Beacons -Destination .\Release\WindowsBeacons
-        del .\Release\Modules\.gitignore
-        Move-Item -Path .\Release\Modules -Destination .\Release\WindowsModules
-        Compress-Archive -Path .\Release -DestinationPath .\Release.zip
+      - name: Install Conan
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "conan>=2,<3"
 
-    - name: Upload release
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: Release.zip
-        asset_name: Release.zip
-        tag: ${{ github.ref }}
-        overwrite: true
-        body: "Windows beacons and modules"
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-${{ hashFiles('conanfile.txt') }}
+          restore-keys: |
+            conan-${{ runner.os }}-
 
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake `
+            -S . `
+            -B $env:BUILD_DIR `
+            -G "Visual Studio 17 2022" `
+            -DC2CORE_BUILD_TESTS=ON
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build $env:BUILD_DIR --config $env:BUILD_TYPE -- /m
+
+      - name: Test
+        shell: pwsh
+        run: |
+          ctest --test-dir $env:BUILD_DIR --build-config $env:BUILD_TYPE --output-on-failure --timeout 60
+
+      - name: Validate deliverables
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $expectedBeacons = @(
+            "BeaconDns.exe",
+            "BeaconDnsDll.dll",
+            "BeaconGithub.exe",
+            "BeaconGithubDll.dll",
+            "BeaconHttp.exe",
+            "BeaconHttpDll.dll",
+            "BeaconSmb.exe",
+            "BeaconSmbDll.dll",
+            "BeaconTcp.exe",
+            "BeaconTcpDll.dll"
+          )
+
+          $expectedModules = @(
+            "AssemblyExec.dll",
+            "Cat.dll",
+            "ChangeDirectory.dll",
+            "Chisel.dll",
+            "CimExec.dll",
+            "Coff.dll",
+            "DcomExec.dll",
+            "DotnetExec.dll",
+            "Download.dll",
+            "EnumerateRdpSessions.dll",
+            "EnumerateShares.dll",
+            "Evasion.dll",
+            "GetEnv.dll",
+            "Inject.dll",
+            "IpConfig.dll",
+            "KerberosUseTicket.dll",
+            "KeyLogger.dll",
+            "KillProcess.dll",
+            "ListDirectory.dll",
+            "ListProcesses.dll",
+            "MakeToken.dll",
+            "MiniDump.dll",
+            "MkDir.dll",
+            "Netstat.dll",
+            "Powershell.dll",
+            "PrintWorkingDirectory.dll",
+            "PsExec.dll",
+            "PwSh.dll",
+            "Registry.dll",
+            "Remove.dll",
+            "Rev2self.dll",
+            "Run.dll",
+            "ScreenShot.dll",
+            "Script.dll",
+            "Shell.dll",
+            "SpawnAs.dll",
+            "SshExec.dll",
+            "StealToken.dll",
+            "TaskScheduler.dll",
+            "Tree.dll",
+            "Upload.dll",
+            "Whoami.dll",
+            "WinRM.dll",
+            "WmiExec.dll"
+          )
+
+          foreach ($file in $expectedBeacons) {
+            if (-not (Test-Path "Release/Beacons/$file")) {
+              throw "Missing beacon deliverable: $file"
+            }
+          }
+
+          foreach ($file in $expectedModules) {
+            if (-not (Test-Path "Release/Modules/$file")) {
+              throw "Missing module deliverable: $file"
+            }
+          }
+
+      - name: Stage release archive
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $stage = "artifacts/Release"
+          Remove-Item -Recurse -Force "artifacts" -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force "$stage/WindowsBeacons", "$stage/WindowsModules" | Out-Null
+          Copy-Item "Release/Beacons/*" "$stage/WindowsBeacons" -Exclude ".gitignore"
+          Copy-Item "Release/Modules/*" "$stage/WindowsModules" -Exclude ".gitignore"
+          Compress-Archive -Path "$stage/*" -DestinationPath $env:RELEASE_ZIP -Force
+
+      - name: Upload CI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: C2Implant-Windows-Release
+          path: ${{ env.RELEASE_ZIP }}
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub release
+    runs-on: windows-2022
+    needs: build-test
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download release archive
+        uses: actions/download-artifact@v4
+        with:
+          name: C2Implant-Windows-Release
+
+      - name: Upload release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ env.RELEASE_ZIP }}
+          asset_name: ${{ env.RELEASE_ZIP }}
+          tag: ${{ github.ref }}
+          overwrite: true
+          body: "Windows beacons and modules"

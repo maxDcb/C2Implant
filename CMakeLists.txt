@@ -21,16 +21,23 @@ endif()
 
 if(WIN32)
   set(C2_CMAKE_COMMAND "${CMAKE_COMMAND}")
+  set(C2_CONAN_CMAKE_PROGRAM_ARGS)
   if(C2_CMAKE_COMMAND MATCHES " ")
     file(GLOB C2_CONAN_CMAKE_CANDIDATES "$ENV{USERPROFILE}/.conan2/p/cmake*/p/bin/cmake.exe")
     if(C2_CONAN_CMAKE_CANDIDATES)
       list(SORT C2_CONAN_CMAKE_CANDIDATES ORDER DESCENDING)
       list(GET C2_CONAN_CMAKE_CANDIDATES 0 C2_CMAKE_COMMAND)
+      file(TO_CMAKE_PATH "${C2_CMAKE_COMMAND}" C2_CMAKE_COMMAND)
+      set(C2_CONAN_CMAKE_PROGRAM_ARGS
+          "-c:h;tools.cmake:cmake_program=${C2_CMAKE_COMMAND};-c:b;tools.cmake:cmake_program=${C2_CMAKE_COMMAND}")
     endif()
+  else()
+    file(TO_CMAKE_PATH "${C2_CMAKE_COMMAND}" C2_CMAKE_COMMAND)
+    set(C2_CONAN_CMAKE_PROGRAM_ARGS
+        "-c:h;tools.cmake:cmake_program=${C2_CMAKE_COMMAND};-c:b;tools.cmake:cmake_program=${C2_CMAKE_COMMAND}")
   endif()
-  file(TO_CMAKE_PATH "${C2_CMAKE_COMMAND}" C2_CMAKE_COMMAND)
   set(CONAN_INSTALL_ARGS
-      "--build=missing;-c:h;tools.cmake:cmake_program=${C2_CMAKE_COMMAND};-c:b;tools.cmake:cmake_program=${C2_CMAKE_COMMAND}"
+      "--build=missing;${C2_CONAN_CMAKE_PROGRAM_ARGS}"
       CACHE STRING "Conan install arguments for C2Implant" FORCE)
   set(CONAN_INSTALL_CONFIGURATIONS Release CACHE STRING
       "Only install the configuration built by C2Implant in Visual Studio generators." FORCE)
@@ -54,6 +61,9 @@ add_compile_definitions(
 )
 
 option(C2CORE_BUILD_TESTS "Enable C2Core tests from the parent project" OFF)
+if(C2CORE_BUILD_TESTS)
+  enable_testing()
+endif()
 
 set(C2_RUNTIME_MODULE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Release/Modules" CACHE PATH
     "Directory where C2Core runtime modules are copied after build")
