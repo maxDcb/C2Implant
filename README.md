@@ -41,61 +41,75 @@ This project relies on several third-party libraries and tools:
 * [COFFLoader](https://github.com/trustedsec/COFFLoader): Executes object files such as those in [CS-Situational-Awareness-BOF](https://github.com/trustedsec/CS-Situational-Awareness-BOF).
 * [MemoryModule](https://github.com/fancycode/MemoryModule): Enables runtime DLL loading.
 * [UnmanagedPowerShell](https://github.com/leechristensen/UnmanagedPowerShell): Executes PowerShell from unmanaged code.
-* [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64): Base64 encoding/decoding.
-* [nlohmann/json](https://github.com/nlohmann/json): JSON parsing.
+* [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64): Base64 encoding/decoding, built locally as the `c2_base64` CMake target.
+* [libssh2](https://libssh2.org/): SSH client support for the `SshExec` module, provided by Conan.
+* [nlohmann/json](https://github.com/nlohmann/json): JSON parsing, provided by Conan.
 
 ### Preparing the Environment
 
 Install prerequisites:
 
 * [Chocolatey](https://chocolatey.org/install)
-* CMake:
+* CMake
+* Conan 2
+* Visual Studio 2022 with the C++ toolchain
 
 ```bash
 choco install cmake --pre
+python -m pip install --user conan
 ```
 
-Initialize submodules and set up the build directory:
+Initialize submodules:
 
 ```bash
 git submodule update --init
-mkdir buildWindows
-cd buildWindows
 ```
 
 ### Building the Windows Beacons and Modules
+
+The supported local configuration is `Release` with the static MSVC runtime (`/MT`). The top-level CMake file configures Conan so `libssh2`, OpenSSL/zlib transitive dependencies, and local targets use the same runtime.
 
 #### Windows x64
 
 Using the "x64 Native Tools Command Prompt for VS":
 
 ```bash
-cmake -G "Visual Studio 17 2022" ..
-
-msbuild .\C2Implant.sln /property:Configuration=Release -m
+cmake -S . -B build-conan -G "Visual Studio 17 2022"
+cmake --build build-conan --config Release -- /m
 ```
 
-Alternatively, open the generated `C2Implant.sln` in Visual Studio and build in **Release** mode. Ensure the Runtime Library is set to **Multi-threaded (/MT)**.
-
-Project can also be build with the C2Core package:
+From WSL, prefer the Visual Studio CMake executable so the generated paths stay Windows-native:
 
 ```bash
-# download last windows package
+'/mnt/c/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe' \
+  -S E:/Dev/C2Implant \
+  -B E:/Dev/C2Implant/build-conan \
+  -G "Visual Studio 17 2022"
 
-set "CMAKE_PREFIX_PATH=path_to_C2Core-Windows" 
-
-cmake -G "Visual Studio 17 2022" ..
-
-msbuild .\C2Implant.sln /property:Configuration=Release -m
-
+'/mnt/c/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/bin/cmake.exe' \
+  --build E:/Dev/C2Implant/build-conan \
+  --config Release \
+  -- /m
 ```
 
 #### Windows x86
 
 ```bash
-cmake -G "Visual Studio 17 2022" -A "Win32" ..
-msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m
+cmake -S . -B build-conan-x86 -G "Visual Studio 17 2022" -A Win32
+cmake --build build-conan-x86 --config Release -- /m
 ```
+
+### Conan Notes
+
+Dependencies are declared in `conanfile.txt`. The CMake provider runs `conan install` automatically during configuration.
+
+For Visual Studio generators, only the `Release` Conan configuration is installed by default. If you need a Debug build, configure with a cache override such as:
+
+```bash
+cmake -S . -B build-conan -G "Visual Studio 17 2022" -DCONAN_INSTALL_CONFIGURATIONS="Release;Debug"
+```
+
+Do not manually force `/MT` through `CMAKE_CXX_FLAGS`; the project uses `CMAKE_MSVC_RUNTIME_LIBRARY` before `project()` so Conan detects the correct runtime.
 
 ### Output Locations
 

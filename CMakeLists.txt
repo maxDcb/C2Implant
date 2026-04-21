@@ -1,6 +1,40 @@
 cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING
+    "Use the static MSVC runtime so beacon targets and Conan libraries agree.")
+
+set(C2_CONAN_PROVIDER "${CMAKE_CURRENT_LIST_DIR}/conan_provider.cmake")
+if(EXISTS "${C2_CONAN_PROVIDER}")
+  list(PREPEND CMAKE_PROJECT_TOP_LEVEL_INCLUDES "${C2_CONAN_PROVIDER}")
+endif()
+
 project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
+
+if(WIN32 AND NOT DEFINED CONAN_COMMAND)
+  file(GLOB C2_CONAN_HINT_DIRS LIST_DIRECTORIES TRUE
+    "$ENV{LOCALAPPDATA}/Programs/Python/Python*/Scripts"
+    "$ENV{APPDATA}/Python/Python*/Scripts")
+  find_program(CONAN_COMMAND
+    NAMES conan conan.exe
+    HINTS ${C2_CONAN_HINT_DIRS})
+endif()
+
+if(WIN32)
+  set(C2_CMAKE_COMMAND "${CMAKE_COMMAND}")
+  if(C2_CMAKE_COMMAND MATCHES " ")
+    file(GLOB C2_CONAN_CMAKE_CANDIDATES "$ENV{USERPROFILE}/.conan2/p/cmake*/p/bin/cmake.exe")
+    if(C2_CONAN_CMAKE_CANDIDATES)
+      list(SORT C2_CONAN_CMAKE_CANDIDATES ORDER DESCENDING)
+      list(GET C2_CONAN_CMAKE_CANDIDATES 0 C2_CMAKE_COMMAND)
+    endif()
+  endif()
+  file(TO_CMAKE_PATH "${C2_CMAKE_COMMAND}" C2_CMAKE_COMMAND)
+  set(CONAN_INSTALL_ARGS
+      "--build=missing;-c:h;tools.cmake:cmake_program=${C2_CMAKE_COMMAND};-c:b;tools.cmake:cmake_program=${C2_CMAKE_COMMAND}"
+      CACHE STRING "Conan install arguments for C2Implant" FORCE)
+  set(CONAN_INSTALL_CONFIGURATIONS Release CACHE STRING
+      "Only install the configuration built by C2Implant in Visual Studio generators." FORCE)
+endif()
 
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 23)
@@ -8,103 +42,79 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
-set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
+if(MSVC)
+  add_compile_options($<$<CONFIG:Release>:/O1> $<$<CONFIG:Release>:/Ob0>)
+else()
+  set(CMAKE_CXX_FLAGS_RELEASE "-O1")
+  set(CMAKE_C_FLAGS_RELEASE "-O1")
+endif()
 
 add_compile_definitions(
   NOMINMAX                # <-- disables Windows min/max macros
 )
 
-# --- Decide whether a prefix path was provided (var or env) ---
-set(_prefixes "")
+option(C2CORE_BUILD_TESTS "Enable C2Core tests from the parent project" OFF)
 
-# Prefer the CMake var if set on the command line/cache.
-if(DEFINED CMAKE_PREFIX_PATH AND NOT "${CMAKE_PREFIX_PATH}" STREQUAL "")
-  set(_prefixes "${CMAKE_PREFIX_PATH}")
-elseif(DEFINED ENV{CMAKE_PREFIX_PATH} AND NOT "$ENV{CMAKE_PREFIX_PATH}" STREQUAL "")
-  # fall back to environment variable
-  set(_prefixes "$ENV{CMAKE_PREFIX_PATH}")
+set(C2_RUNTIME_MODULE_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/Release/Modules" CACHE PATH
+    "Directory where C2Core runtime modules are copied after build")
+set(C2_TEST_BIN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests" CACHE PATH
+    "Directory where C2Core test binaries are copied after build")
+
+file(MAKE_DIRECTORY "${C2_RUNTIME_MODULE_OUTPUT_DIR}")
+file(MAKE_DIRECTORY "${C2_TEST_BIN_OUTPUT_DIR}")
+
+
+add_definitions(-DBUILD_IMPLANT)
+
+##
+## Conan Dependencies
+##
+find_package(Libssh2 QUIET CONFIG)
+if(NOT Libssh2_FOUND)
+  find_package(libssh2 REQUIRED CONFIG)
 endif()
 
-# Optional: normalize whitespace
-string(STRIP "${_prefixes}" _prefixes)
-
-if (C2CORE_BUILD_TESTS)
-    add_definitions(-DC2CORE_BUILD_TESTS)
-    # TODO add the right fetch
+if(TARGET libssh2::libssh2 AND NOT TARGET Libssh2::libssh2)
+  add_library(Libssh2::libssh2 INTERFACE IMPORTED)
+  target_link_libraries(Libssh2::libssh2 INTERFACE libssh2::libssh2)
 endif()
 
-if(_prefixes)
+find_package(nlohmann_json REQUIRED CONFIG)
 
-    message(STATUS "Using CMAKE_PREFIX_PATH: ${_prefixes}")
+include_directories(${CMAKE_INCLUDE_PATH})
 
-    include_directories(thirdParty)
-    
-    ##
-    ## C2Core dependency and build
-    ##
-
-    find_package(C2Core CONFIG REQUIRED)
-
-    include_directories(thirdParty/base64)
-
-    add_subdirectory(beacon/beacon)
-
-else()
-
-    message(STATUS "CMAKE_PREFIX_PATH not provided; using fallback strategy")
-
-    include_directories(thirdParty)
-
-    add_definitions(-DBUILD_IMPLANT)
-
-    ##
-    ## Fetch for core
-    ##
-
-    include(FetchContent)
-
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-    set(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
-    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
-    add_compile_definitions(LIBSSH2_LIBRARY)    # needed for full static lib
-    
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
-
-    FetchContent_Declare(
-      libssh2
-      GIT_REPOSITORY https://github.com/libssh2/libssh2.git
-      GIT_TAG libssh2-1.11.1
-    )
-
-    FetchContent_MakeAvailable(libssh2)
-
-    ##
-    ## Build
-    ##
-
-    add_subdirectory(libs)
-
-    add_subdirectory(thirdParty)
-    include_directories(thirdParty/base64)
-    include_directories(thirdParty/donut/include)
-    include_directories(thirdParty/coffLoader/coffLoader)
-    include_directories(thirdParty/MemoryModule)
-
-    set(DONUT_BUILD_DIR "${CMAKE_BINARY_DIR}/thirdParty/donut")
-    add_library(Donut STATIC IMPORTED)
-    set_target_properties(Donut PROPERTIES
-    IMPORTED_LOCATION "${DONUT_BUILD_DIR}/lib/donut.lib"
-    )
-
-    add_subdirectory(core/modules)
-    add_subdirectory(core/beacon)
-
-    include_directories(core/listener)
-    include_directories(core/beacon)
-    include_directories(core/modules/ModuleCmd)
-    add_subdirectory(beacon/beacon)
-
+get_target_property(C2_NLOHMANN_JSON_INCLUDE_DIRS nlohmann_json::nlohmann_json INTERFACE_INCLUDE_DIRECTORIES)
+if(C2_NLOHMANN_JSON_INCLUDE_DIRS)
+  include_directories(BEFORE ${C2_NLOHMANN_JSON_INCLUDE_DIRS})
 endif()
 
+include_directories(thirdParty)
+
+add_definitions(-DBUILD_IMPLANT)
+
+
+##
+## Build
+##
+
+add_subdirectory(libs)
+
+add_subdirectory(thirdParty)
+include_directories(thirdParty/base64)
+include_directories(thirdParty/donut/include)
+include_directories(thirdParty/coffLoader/coffLoader)
+include_directories(thirdParty/MemoryModule)
+
+set(DONUT_BUILD_DIR "${CMAKE_BINARY_DIR}/thirdParty/donut")
+add_library(Donut STATIC IMPORTED)
+set_target_properties(Donut PROPERTIES
+IMPORTED_LOCATION "${DONUT_BUILD_DIR}/lib/donut.lib"
+)
+
+add_subdirectory(core/modules)
+add_subdirectory(core/beacon)
+
+include_directories(core/listener)
+include_directories(core/beacon)
+include_directories(core/modules/ModuleCmd)
+add_subdirectory(beacon/beacon)

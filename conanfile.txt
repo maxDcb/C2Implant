@@ -1,0 +1,12 @@
+[requires]
+libssh2/1.11.1
+nlohmann_json/3.12.0
+
+[options]
+libssh2/*:shared=False
+
+[layout]
+cmake_layout
+
+[generators]
+CMakeDeps
