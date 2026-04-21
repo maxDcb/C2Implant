@@ -40,9 +40,7 @@ jobs:
 
     # for now some test are blocking
     - name: Run unit tests
-      run: |
-      move Tests\dir.x64.o .\
-      ctest --test-dir build -C Release
+      run: ctest --test-dir build -C Release
 
     - name: Prep release
       shell: pwsh
