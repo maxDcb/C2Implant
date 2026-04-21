@@ -36,8 +36,8 @@ jobs:
     - name: Run unit tests
       run: ctest --test-dir build -C Release
       
-    - name: Configure CMake for tests
-      run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/build -DWITH_TESTS=OFF
+    - name: Configure CMake like the release
+      run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}/buildRelease -DWITH_TESTS=OFF
 
     - name: Build app like the release
       working-directory: ${{github.workspace}}/buildRelease
