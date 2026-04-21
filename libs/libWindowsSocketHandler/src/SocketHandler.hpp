@@ -8,6 +8,7 @@
 #include <ws2tcpip.h>
 #include <stdio.h>
 
+
 namespace SocketHandler
 {
 
@@ -18,21 +19,17 @@ public:
 	~Server();
 
 	void initServer();
+	void closeConnection();
 
 	bool sendData(std::string& data);
 	bool receive(std::string& data);
 
 private:
-	void creatServerTcp(int port);
-
-	bool m_initDone;
 	int m_port;
 
-	// std::thread* threadInit;
-
 	struct addrinfo *result;
-    SOCKET ListenSocket;
-    SOCKET ClientSocket;
+    SOCKET m_listenSocket;
+    SOCKET m_clientSocket;
 };
 
 
@@ -50,13 +47,11 @@ public:
 	bool receive(std::string& data);
 
 private:
-	bool creatClientTcp(int port, std::string& ip);
-
 	std::string m_ipServer;
 	int m_port;
 
 	struct addrinfo *result;
-	SOCKET ConnectSocket;
+	SOCKET m_connectSocket;
 };
 
 }
