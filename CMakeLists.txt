@@ -1,8 +1,14 @@
 cmake_minimum_required(VERSION 3.24.0 FATAL_ERROR)
 
 project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
+
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 23)
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+include(FetchContent)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
@@ -24,6 +30,11 @@ endif()
 
 # Optional: normalize whitespace
 string(STRIP "${_prefixes}" _prefixes)
+
+if (C2CORE_BUILD_TESTS)
+    add_definitions(-DC2CORE_BUILD_TESTS)
+    # TODO add the right fetch
+endif()
 
 if(_prefixes)
 
@@ -48,6 +59,21 @@ else()
     include_directories(thirdParty)
 
     add_definitions(-DBUILD_IMPLANT)
+
+    ##
+    ## Fetch for core
+    ##
+
+    set(LIBSSH2_BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
+    set(LIBSSH2_BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
+    set(LIBSSH2_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(LIBSSH2_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    FetchContent_Declare(
+      libssh2
+      GIT_REPOSITORY https://github.com/libssh2/libssh2.git
+      GIT_TAG libssh2-1.11.1
+    )
+    FetchContent_MakeAvailable(libssh2)
 
     ##
     ## Build
