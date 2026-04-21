@@ -1,5 +1,4 @@
 import sys, getopt
-from Crypto.Cipher import AES
 import os
 from os import urandom
 import hashlib
@@ -12,26 +11,10 @@ from pathlib import Path
 characters = string.ascii_letters + string.digits
 password = ''.join(random.choice(characters) for i in range(16))
 
-
 KEY_XOR = password.replace('"','-').replace('\'','-')
-KEY_AES = urandom(16)
-
-
-def pad(s):
-	return s + (AES.block_size - len(s) % AES.block_size) * chr(AES.block_size - len(s) % AES.block_size).encode('ISO-8859-1')
-
-
-def aesenc(plaintext, key):
-	k = hashlib.sha256(key).digest()
-	iv = 16 * b'\x00'
-	plaintext = pad(plaintext)    
-	cipher = AES.new(k , AES.MODE_CBC, iv)
-	output = cipher.encrypt(plaintext)
-	return output
 
 
 def xor(data, key):
-	
 	key = str(key)
 	l = len(key)
 	output_str = ""
@@ -71,16 +54,12 @@ def generateConfig(outputFilePath):
 
 
     fileEncrypt.write(fileClearContent)
-
     fileEncrypt.close()
-
     return 
 
 
 def main(argv):
-
     outputFilePath = "./cryptDef.hpp"
-
     opts, args = getopt.getopt(argv,"hb:o:",["output="])
     for opt, arg in opts:
             if opt == '-h':
@@ -90,11 +69,8 @@ def main(argv):
                     outputFilePath = arg
     
     print('[+] Generate config:')
-
     generateConfig(outputFilePath)
-
 
 
 if __name__ == "__main__":
     main(sys.argv[1:])
-
