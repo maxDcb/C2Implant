@@ -27,7 +27,7 @@ jobs:
       uses: turtlebrowser/get-conan@v1.2
 
     - name: Create default profile
-      run: conan profile detect
+      run: copy .\conan.profile %userprofile%\.conan2\profiles\default
         
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1.3
