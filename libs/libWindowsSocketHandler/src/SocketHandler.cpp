@@ -174,13 +174,18 @@ bool Server::receive(std::string& data)
 
 	if(nbBytes!=0)
 	{
-		iResult = recv(ClientSocket, &data[0], nbBytes, 0);
-		if (iResult == SOCKET_ERROR) 
+		int nbBytesReceived=0;
+		while(nbBytesReceived!=nbBytes)
 		{
-			// printf("recv failed: %d\n", WSAGetLastError());
-			closesocket(ClientSocket);
-			m_initDone=false;
-			return false;
+			iResult = recv(ClientSocket, &data[nbBytesReceived], nbBytes-nbBytesReceived, 0);
+			if (iResult == SOCKET_ERROR) 
+			{
+				// printf("recv failed: %d\n", WSAGetLastError());
+				closesocket(ClientSocket);
+				m_initDone=false;
+				return false;
+			}
+			nbBytesReceived+=iResult;
 		}
 	}
 
@@ -332,13 +337,19 @@ bool Client::receive(std::string& data)
 
 	if(nbBytes!=0)
 	{
-		iResult = recv(ConnectSocket, &data[0], nbBytes, 0);
-		if (iResult == SOCKET_ERROR)
+		int nbBytesReceived=0;
+		while(nbBytesReceived!=nbBytes)
 		{
-			// printf("recv failed: %d\n", WSAGetLastError());
-			closesocket(ConnectSocket);
-			return false;
+			iResult = recv(ConnectSocket, &data[nbBytesReceived], nbBytes-nbBytesReceived, 0);
+			if (iResult == SOCKET_ERROR) 
+			{
+				// printf("recv failed: %d\n", WSAGetLastError());
+				closesocket(ConnectSocket);
+				return false;
+			}
+			nbBytesReceived+=iResult;
 		}
+
 	}
 
 	return true;
