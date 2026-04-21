@@ -39,7 +39,7 @@ jobs:
       run: msbuild .\C2Implant.sln /property:Configuration=Release -m:16
 
     - name: Run unit tests
-      run: ctest --test-dir build 
+      run: ctest --test-dir build -C Release
 
     - name: Prep release
       run: |
