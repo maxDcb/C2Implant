@@ -27,6 +27,14 @@ jobs:
     - name: Git Sumbodule Update
       run: |
         git submodule update --init
+
+    - name: Get Conan
+      # You may pin to the exact commit or the version.
+      # uses: turtlebrowser/get-conan@c171f295f3f507360ee018736a6608731aa2109d
+      uses: turtlebrowser/get-conan@v1.2
+
+    - name: Create default profile
+      run: conan profile detect
         
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1.3
