@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14.0 FATAL_ERROR)
 
-project(C2 VERSION 0.0.0 LANGUAGES CXX C)
+project(C2Implant VERSION 0.0.0 LANGUAGES CXX C)
 set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_STANDARD 17)
 
