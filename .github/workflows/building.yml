@@ -6,6 +6,9 @@ env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
+permissions:
+  contents: write
+
 jobs:
   build:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
@@ -35,4 +38,21 @@ jobs:
       working-directory: ${{github.workspace}}/build
       run: msbuild .\C2Implant.sln /property:Configuration=Release -m:16
 
+    - name: Run unit tests
+      run: ctest --test-dir build 
+
+    - name: Prep release
+      run: |
+        rm -f Release/Beacons/.gitignore
+        rm -f Release/Modules/.gitignore
+
+    - name: Upload release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: Release.tar.gz
+        asset_name: Release.tar.gz
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "test release"
 
