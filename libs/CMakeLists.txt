@@ -1,2 +1,3 @@
 add_subdirectory(libWindowsSocketHandler)
 add_subdirectory(libPipeHandler)
+add_subdirectory(libDns)
