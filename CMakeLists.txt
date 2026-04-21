@@ -8,8 +8,6 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-include(FetchContent)
-
 set(CMAKE_CXX_FLAGS_RELEASE "-MT -O1 -Ob0")
 set(CMAKE_C_FLAGS_RELEASE "-MT -O1 -Ob0")
 
@@ -64,15 +62,20 @@ else()
     ## Fetch for core
     ##
 
-    set(LIBSSH2_BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
-    set(LIBSSH2_BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
-    set(LIBSSH2_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-    set(LIBSSH2_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    include(FetchContent)
+
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)
+    set(BUILD_STATIC_LIBS ON CACHE BOOL "Build static libraries" FORCE)
+    set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    add_compile_definitions(LIBSSH2_LIBRARY)    # needed for full static lib
+    
     FetchContent_Declare(
       libssh2
       GIT_REPOSITORY https://github.com/libssh2/libssh2.git
       GIT_TAG libssh2-1.11.1
     )
+
     FetchContent_MakeAvailable(libssh2)
 
     ##
