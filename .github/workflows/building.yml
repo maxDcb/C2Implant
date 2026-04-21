@@ -42,16 +42,18 @@ jobs:
       run: ctest --test-dir build -C Release
 
     - name: Prep release
+      shell: pwsh
       run: |
         del Release/Beacons/.gitignore
         del Release/Modules/.gitignore
+        Compress-Archive -Path .\Release -DestinationPath .\Release.zip
 
     - name: Upload release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: Release.tar.gz
-        asset_name: Release.tar.gz
+        file: Release.zip
+        asset_name: Release.zip
         tag: ${{ github.ref }}
         overwrite: true
         body: "test release"
