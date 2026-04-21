@@ -13,13 +13,14 @@ int main()
 
     while(1)
     {
-        string out="Man";
-        server->sendData(out);
 
         string ret;
         server->receive(ret);
 
         std::cout << "Server - " << ret << std::endl;
+
+        string out="{}";
+        server->sendData(out);
 
         Sleep(1000);        
     }
