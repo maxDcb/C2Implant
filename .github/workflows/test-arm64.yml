@@ -1,0 +1,10 @@
+name: test-arm64
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-11-arm
+    steps:
+      - run: echo "ARM64 OK"
