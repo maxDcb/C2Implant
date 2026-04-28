@@ -9,11 +9,10 @@ on:
     tags:
       - "*"
 
+
 env:
   BUILD_DIR: build-arm64-ci
   BUILD_TYPE: Release
-  CONAN_CACHE_KEY: conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-${{ github.run_id }}
-  CONAN_CACHE_RESTORE_KEY: conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-
 
 permissions:
   contents: read
@@ -44,9 +43,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.conan2
-          key: ${{ env.CONAN_CACHE_KEY }}
+          key: conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-${{ github.run_id }}
           restore-keys: |
-            ${{ env.CONAN_CACHE_RESTORE_KEY }}
+            conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-
             conan-${{ runner.os }}-arm64-
             conan-${{ runner.os }}-
 
@@ -89,7 +88,7 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: ~/.conan2
-          key: ${{ env.CONAN_CACHE_KEY }}
+          key: conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-${{ github.run_id }}
 
   build-test-arm64:
     name: Build and test Windows ARM64
@@ -117,9 +116,9 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: ~/.conan2
-          key: ${{ env.CONAN_CACHE_KEY }}
+          key: conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-${{ github.run_id }}
           restore-keys: |
-            ${{ env.CONAN_CACHE_RESTORE_KEY }}
+            conan-${{ runner.os }}-arm64-${{ hashFiles('conanfile.txt') }}-
             conan-${{ runner.os }}-arm64-
             conan-${{ runner.os }}-
 
