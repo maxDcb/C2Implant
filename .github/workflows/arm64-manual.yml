@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - "**"
+    tags:
+      - "*"
 
 env:
   BUILD_DIR: build-arm64-ci
