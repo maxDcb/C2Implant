@@ -47,6 +47,13 @@ cmake -S . -B build-conan-x86 -G "Visual Studio 17 2022" -A Win32
 cmake --build build-conan-x86 --config Release -- /m
 ```
 
+Typical ARM64 flow:
+
+```bash
+cmake -S . -B build-conan-arm64 -G "Visual Studio 17 2022" -A ARM64 "-DCONAN_INSTALL_ARGS=--build=missing;-o;openssl/*:no_asm=True"
+cmake --build build-conan-arm64 --config Release -- /m
+```
+
 If running directly from a Windows developer prompt, the same commands can use `cmake` instead of the absolute Visual Studio CMake path.
 
 The current Conan dependencies are declared in `conanfile.txt`:
@@ -102,7 +109,9 @@ Warnings currently exist in the tree, especially around macro redefinitions from
 ## CI/CD Contract
 
 - CI must run on pull requests and branch pushes, not only on release tags.
+- CI must build and test `x64`, `x86`, and `ARM64`. ARM64 validation must run on a Windows ARM64 runner.
 - CD must publish only the Windows Beacon and Module deliverables consumed by `C2TeamServer`.
 - Do not mutate `Release/Beacons` or `Release/Modules` during packaging. Copy deliverables into a clean staging directory, then zip the staging directory.
 - Keep the release archive layout stable: `WindowsBeacons/` and `WindowsModules/`.
+- Publish one archive per architecture: `C2Implant-windows-x64.zip`, `C2Implant-windows-x86.zip`, and `C2Implant-windows-arm64.zip`.
 - If a test is not stable enough for CI, fix or isolate it explicitly; do not silently remove the full CTest step.

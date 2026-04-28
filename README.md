@@ -99,6 +99,13 @@ cmake -S . -B build-conan-x86 -G "Visual Studio 17 2022" -A Win32
 cmake --build build-conan-x86 --config Release -- /m
 ```
 
+#### Windows ARM64
+
+```bash
+cmake -S . -B build-conan-arm64 -G "Visual Studio 17 2022" -A ARM64 "-DCONAN_INSTALL_ARGS=--build=missing;-o;openssl/*:no_asm=True"
+cmake --build build-conan-arm64 --config Release -- /m
+```
+
 ### Conan Notes
 
 Dependencies are declared in `conanfile.txt`. The CMake provider runs `conan install` automatically during configuration.
@@ -118,11 +125,17 @@ Do not manually force `/MT` through `CMAKE_CXX_FLAGS`; the project uses `CMAKE_M
 
 ### CI/CD Contract
 
-GitHub Actions builds and tests the Windows Release configuration on pull requests, branch pushes, tags, and manual runs.
+GitHub Actions builds and tests the Windows Release configuration for `x64`, `x86`, and `ARM64` on pull requests, branch pushes, tags, and manual runs. The ARM64 build and test run on a Windows ARM64 runner.
 
 The release archive is staged from a clean artifact directory. It does not rename or delete the local `Release\Beacons` and `Release\Modules` folders.
 
-`Release.zip` contains only the deliverables consumed by `C2TeamServer` releases:
+Each archive contains only the deliverables consumed by `C2TeamServer` releases:
 
 * `WindowsBeacons`: Beacon executables and DLLs
 * `WindowsModules`: module DLLs
+
+CI publishes one archive per architecture:
+
+* `C2Implant-windows-x64.zip`
+* `C2Implant-windows-x86.zip`
+* `C2Implant-windows-arm64.zip`
