@@ -109,7 +109,8 @@ Warnings currently exist in the tree, especially around macro redefinitions from
 ## CI/CD Contract
 
 - CI must run on pull requests and branch pushes, not only on release tags.
-- CI must build and test `x64`, `x86`, and `ARM64`. ARM64 validation must run on a Windows ARM64 runner.
+- CI test workflows must build and test `x64`, `x86`, and `ARM64` with `C2CORE_BUILD_TESTS=ON`. ARM64 validation must run on a Windows ARM64 runner.
+- CD workflows must build production Beacon and Module deliverables without enabling `C2CORE_BUILD_TESTS`.
 - CD must publish only the Windows Beacon and Module deliverables consumed by `C2TeamServer`.
 - Do not mutate `Release/Beacons` or `Release/Modules` during packaging. Copy deliverables into a clean staging directory, then zip the staging directory.
 - Keep the release archive layout stable: `WindowsBeacons/` and `WindowsModules/`.

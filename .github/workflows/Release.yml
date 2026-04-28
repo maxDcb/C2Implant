@@ -1,11 +1,8 @@
-name: CI CD
+name: CD
 
 on:
   workflow_dispatch:
-  pull_request:
   push:
-    branches:
-      - "**"
     tags:
       - "*"
 
@@ -16,8 +13,8 @@ permissions:
   contents: read
 
 jobs:
-  build-test:
-    name: Build and test Windows ${{ matrix.arch }}
+  build-package:
+    name: Build Windows release ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -26,21 +23,21 @@ jobs:
           - arch: x64
             runner: windows-2022
             cmake_platform: x64
-            build_dir: build-ci-x64
+            build_dir: build-release-x64
             artifact_name: C2Implant-windows-x64
             release_zip: C2Implant-windows-x64.zip
             conan_install_args: --build=missing
           - arch: x86
             runner: windows-2022
             cmake_platform: Win32
-            build_dir: build-ci-x86
+            build_dir: build-release-x86
             artifact_name: C2Implant-windows-x86
             release_zip: C2Implant-windows-x86.zip
             conan_install_args: --build=missing
           - arch: arm64
             runner: windows-11-arm
             cmake_platform: ARM64
-            build_dir: build-ci-arm64
+            build_dir: build-release-arm64
             artifact_name: C2Implant-windows-arm64
             release_zip: C2Implant-windows-arm64.zip
             conan_install_args: --build=missing;-o;openssl/*:no_asm=True
@@ -79,18 +76,12 @@ jobs:
             -B "${{ matrix.build_dir }}" `
             -G "Visual Studio 17 2022" `
             -A "${{ matrix.cmake_platform }}" `
-            -DC2CORE_BUILD_TESTS=ON `
             "-DCONAN_INSTALL_ARGS=${{ matrix.conan_install_args }}"
 
       - name: Build
         shell: pwsh
         run: |
           cmake --build "${{ matrix.build_dir }}" --config $env:BUILD_TYPE -- /m
-
-      - name: Test
-        shell: pwsh
-        run: |
-          ctest --test-dir "${{ matrix.build_dir }}" --build-config $env:BUILD_TYPE --output-on-failure --timeout 60
 
       - name: Validate deliverables
         shell: pwsh
@@ -190,7 +181,7 @@ jobs:
   release:
     name: Publish GitHub release
     runs-on: ubuntu-latest
-    needs: build-test
+    needs: build-package
     if: startsWith(github.ref, 'refs/tags/')
     permissions:
       contents: write

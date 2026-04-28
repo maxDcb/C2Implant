@@ -125,7 +125,10 @@ Do not manually force `/MT` through `CMAKE_CXX_FLAGS`; the project uses `CMAKE_M
 
 ### CI/CD Contract
 
-GitHub Actions builds and tests the Windows Release configuration for `x64`, `x86`, and `ARM64` on pull requests, branch pushes, tags, and manual runs. The ARM64 build and test run on a Windows ARM64 runner.
+GitHub Actions uses two workflows:
+
+* `CI`: builds and tests the Windows Release configuration for `x64`, `x86`, and `ARM64` on pull requests, branch pushes, and manual runs with `C2CORE_BUILD_TESTS=ON`. The ARM64 build and test run on a Windows ARM64 runner.
+* `CD`: builds production Beacon and Module deliverables for `x64`, `x86`, and `ARM64` on tags and manual runs without enabling `C2CORE_BUILD_TESTS`.
 
 The release archive is staged from a clean artifact directory. It does not rename or delete the local `Release\Beacons` and `Release\Modules` folders.
 
