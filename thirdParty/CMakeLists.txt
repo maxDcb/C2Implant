@@ -15,7 +15,7 @@ set_target_properties(c2_base64 PROPERTIES
   POSITION_INDEPENDENT_CODE ON
 )
 
-# add_subdirectory(coffLoader)
+add_subdirectory(coffLoader)
 add_subdirectory(MemoryModule)
 
 ## donut
