@@ -2,12 +2,6 @@ name: CI CD
 
 on:
   workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - "**"
-    tags:
-      - "*"
 
 env:
   BUILD_DIR: build-conan
