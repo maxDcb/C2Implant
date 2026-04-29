@@ -132,6 +132,10 @@ IMPORTED_LOCATION "${DONUT_BUILD_DIR}/lib/donut.lib"
 
 add_subdirectory(core/modules)
 add_subdirectory(core/beacon)
+if(C2CORE_BUILD_TESTS)
+  add_subdirectory(core/listener/tests)
+  add_subdirectory(core/beacon/tests)
+endif()
 
 include_directories(core/listener)
 include_directories(core/beacon)
