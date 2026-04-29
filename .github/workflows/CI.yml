@@ -1,0 +1,87 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "*"
+
+env:
+  BUILD_TYPE: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: Build and test Windows ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: windows-2022
+            cmake_platform: x64
+            build_dir: build-test-x64
+            conan_install_args: --build=missing
+          - arch: x86
+            runner: windows-2022
+            cmake_platform: Win32
+            build_dir: build-test-x86
+            conan_install_args: --build=missing
+          - arch: arm64
+            runner: windows-11-arm
+            cmake_platform: ARM64
+            build_dir: build-test-arm64
+            conan_install_args: --build=missing;-o;openssl/*:no_asm=True
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install Conan
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "conan>=2,<3"
+
+      - name: Cache Conan packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-${{ matrix.arch }}-${{ hashFiles('conanfile.txt') }}
+          restore-keys: |
+            conan-${{ runner.os }}-${{ matrix.arch }}-
+            conan-${{ runner.os }}-
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake `
+            -S . `
+            -B "${{ matrix.build_dir }}" `
+            -G "Visual Studio 17 2022" `
+            -A "${{ matrix.cmake_platform }}" `
+            -DC2CORE_BUILD_TESTS=ON `
+            "-DCONAN_INSTALL_ARGS=${{ matrix.conan_install_args }}"
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cmake --build "${{ matrix.build_dir }}" --config $env:BUILD_TYPE -- /m
+
+      - name: Test
+        shell: pwsh
+        run: |
+          ctest --test-dir "${{ matrix.build_dir }}" --build-config $env:BUILD_TYPE --output-on-failure --timeout 60

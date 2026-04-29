@@ -36,8 +36,17 @@ if(WIN32)
     set(C2_CONAN_CMAKE_PROGRAM_ARGS
         "-c:h;tools.cmake:cmake_program=${C2_CMAKE_COMMAND};-c:b;tools.cmake:cmake_program=${C2_CMAKE_COMMAND}")
   endif()
+  if(DEFINED CONAN_INSTALL_ARGS AND NOT CONAN_INSTALL_ARGS STREQUAL "")
+    set(_C2_CONAN_INSTALL_ARGS "${CONAN_INSTALL_ARGS}")
+    if(C2_CONAN_CMAKE_PROGRAM_ARGS)
+      list(APPEND _C2_CONAN_INSTALL_ARGS "${C2_CONAN_CMAKE_PROGRAM_ARGS}")
+    endif()
+  else()
+    set(_C2_CONAN_INSTALL_ARGS
+        "--build=missing;${C2_CONAN_CMAKE_PROGRAM_ARGS}")
+  endif()
   set(CONAN_INSTALL_ARGS
-      "--build=missing;${C2_CONAN_CMAKE_PROGRAM_ARGS}"
+      "${_C2_CONAN_INSTALL_ARGS}"
       CACHE STRING "Conan install arguments for C2Implant" FORCE)
   set(CONAN_INSTALL_CONFIGURATIONS Release CACHE STRING
       "Only install the configuration built by C2Implant in Visual Studio generators." FORCE)
