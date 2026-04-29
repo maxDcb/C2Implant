@@ -69,8 +69,13 @@ add_compile_definitions(
   NOMINMAX                # <-- disables Windows min/max macros
 )
 
+option(BUILD_TEAMSERVER "Build teamserver-side command parsing/help code" OFF)
 option(C2CORE_BUILD_TESTS "Enable C2Core tests from the parent project" OFF)
+if(BUILD_TEAMSERVER)
+  add_compile_definitions(BUILD_TEAMSERVER)
+endif()
 if(C2CORE_BUILD_TESTS)
+  add_compile_definitions(C2CORE_BUILD_TESTS)
   enable_testing()
 endif()
 
@@ -81,9 +86,6 @@ set(C2_TEST_BIN_OUTPUT_DIR "${CMAKE_BINARY_DIR}/tests" CACHE PATH
 
 file(MAKE_DIRECTORY "${C2_RUNTIME_MODULE_OUTPUT_DIR}")
 file(MAKE_DIRECTORY "${C2_TEST_BIN_OUTPUT_DIR}")
-
-
-add_definitions(-DBUILD_IMPLANT)
 
 ##
 ## Conan Dependencies
@@ -108,8 +110,6 @@ if(C2_NLOHMANN_JSON_INCLUDE_DIRS)
 endif()
 
 include_directories(thirdParty)
-
-add_definitions(-DBUILD_IMPLANT)
 
 
 ##
