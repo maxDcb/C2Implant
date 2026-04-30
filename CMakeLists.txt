@@ -71,11 +71,17 @@ add_compile_definitions(
 
 option(BUILD_TEAMSERVER "Build teamserver-side command parsing/help code" OFF)
 option(C2CORE_BUILD_TESTS "Enable C2Core tests from the parent project" OFF)
+option(C2CORE_BUILD_FUNCTIONAL_TESTS "Enable manual/env-driven C2Core functional tests" OFF)
 if(BUILD_TEAMSERVER)
   add_compile_definitions(BUILD_TEAMSERVER)
 endif()
 if(C2CORE_BUILD_TESTS)
   add_compile_definitions(C2CORE_BUILD_TESTS)
+endif()
+if(C2CORE_BUILD_FUNCTIONAL_TESTS)
+  add_compile_definitions(C2CORE_BUILD_FUNCTIONAL_TESTS)
+endif()
+if(C2CORE_BUILD_TESTS OR C2CORE_BUILD_FUNCTIONAL_TESTS)
   enable_testing()
 endif()
 
@@ -132,7 +138,7 @@ IMPORTED_LOCATION "${DONUT_BUILD_DIR}/lib/donut.lib"
 
 add_subdirectory(core/modules)
 add_subdirectory(core/beacon)
-if(C2CORE_BUILD_TESTS)
+if(C2CORE_BUILD_TESTS OR C2CORE_BUILD_FUNCTIONAL_TESTS)
   add_subdirectory(core/listener/tests)
   add_subdirectory(core/beacon/tests)
 endif()
