@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 $repositories = @(
     "core",
     "libs/libDns",
+    "libs/libPipeHandler",
     "libs/libSocketHandler",
     "libs/libSocks5",
     "thirdParty/donut"
