@@ -1,6 +1,7 @@
 [requires]
 libssh2/1.11.1
 nlohmann_json/3.12.0
+openssl/3.6.5
 
 [options]
 libssh2/*:shared=False
