@@ -100,7 +100,7 @@ The same caution applies to tests:
 For Windows-facing changes, validate with a real Visual Studio build when possible.
 
 - Regenerate with CMake after touching `CMakeLists.txt`.
-- Confirm that `SshExec`, `BeaconTcp`, `BeaconSmb`, `BeaconDns`, `BeaconHttp`, and `BeaconGithub` all link successfully.
+- Confirm that `SshExec`, `BeaconTcp`, `BeaconSmb`, `BeaconDns`, and `BeaconHttp` all link successfully in the default build. Validate `BeaconGithub` separately with `C2_ENABLE_GITHUB_TRANSPORT=ON` when changing the experimental transport or its build gate.
 - Check timestamps or outputs in `Release/Beacons` if you need to distinguish freshly produced binaries from stale ones.
 - Watch specifically for `LNK2038 RuntimeLibrary` and unresolved CRT externals from Conan libraries. Those usually mean a `/MD` vs `/MT` mismatch between local targets and Conan packages.
 

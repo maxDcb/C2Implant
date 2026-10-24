@@ -36,21 +36,24 @@ add_custom_command(TARGET BeaconTcpDll POST_BUILD COMMAND ${CMAKE_COMMAND} -E co
 $<TARGET_FILE:BeaconTcpDll> "${CMAKE_SOURCE_DIR}/Release/Beacons/$<TARGET_FILE_NAME:BeaconTcpDll>")
 
 
-set(SOURCES_BEACON_GITHUB_LAUNCHER
-BeaconGithubLauncher.cpp
-)
-add_executable(BeaconGithub ${SOURCES_BEACON_GITHUB_LAUNCHER} project.rc)
-set_property(TARGET BeaconGithub PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
-target_link_libraries(BeaconGithub BeaconGithubLib)
-add_custom_command(TARGET BeaconGithub POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
-$<TARGET_FILE:BeaconGithub> "${CMAKE_SOURCE_DIR}/Release/Beacons/$<TARGET_FILE_NAME:BeaconGithub>")
+if(C2_ENABLE_GITHUB_TRANSPORT)
+    set(SOURCES_BEACON_GITHUB_LAUNCHER
+    BeaconGithubLauncher.cpp
+    )
+    add_executable(BeaconGithub ${SOURCES_BEACON_GITHUB_LAUNCHER} project.rc)
+    add_dependencies(BeaconGithub HandleConfig)
+    set_property(TARGET BeaconGithub PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    target_link_libraries(BeaconGithub BeaconGithubLib)
+    add_custom_command(TARGET BeaconGithub POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+    $<TARGET_FILE:BeaconGithub> "${CMAKE_SOURCE_DIR}/Release/Beacons/$<TARGET_FILE_NAME:BeaconGithub>")
 
-add_library(BeaconGithubDll SHARED ${SOURCES_BEACON_GITHUB_LAUNCHER})
-add_dependencies(BeaconGithubDll HandleConfig)
-set_property(TARGET BeaconGithubDll PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
-target_link_libraries(BeaconGithubDll BeaconGithubLib)
-add_custom_command(TARGET BeaconGithubDll POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy 
-$<TARGET_FILE:BeaconGithubDll> "${CMAKE_SOURCE_DIR}/Release/Beacons/$<TARGET_FILE_NAME:BeaconGithubDll>")
+    add_library(BeaconGithubDll SHARED ${SOURCES_BEACON_GITHUB_LAUNCHER})
+    add_dependencies(BeaconGithubDll HandleConfig)
+    set_property(TARGET BeaconGithubDll PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
+    target_link_libraries(BeaconGithubDll BeaconGithubLib)
+    add_custom_command(TARGET BeaconGithubDll POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+    $<TARGET_FILE:BeaconGithubDll> "${CMAKE_SOURCE_DIR}/Release/Beacons/$<TARGET_FILE_NAME:BeaconGithubDll>")
+endif()
 
 
 set(SOURCES_BEACON_SMB_LAUNCHER

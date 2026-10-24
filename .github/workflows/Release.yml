@@ -91,8 +91,6 @@ jobs:
           $expectedBeacons = @(
             "BeaconDns.exe",
             "BeaconDnsDll.dll",
-            "BeaconGithub.exe",
-            "BeaconGithubDll.dll",
             "BeaconHttp.exe",
             "BeaconHttpDll.dll",
             "BeaconSmb.exe",
@@ -167,7 +165,7 @@ jobs:
           $stage = "artifacts/${{ matrix.arch }}"
           Remove-Item -Recurse -Force "artifacts" -ErrorAction SilentlyContinue
           New-Item -ItemType Directory -Force "$stage/WindowsBeacons", "$stage/WindowsModules" | Out-Null
-          Copy-Item "Release/Beacons/*" "$stage/WindowsBeacons" -Exclude ".gitignore"
+          Copy-Item "Release/Beacons/*" "$stage/WindowsBeacons" -Exclude ".gitignore", "BeaconGithub.exe", "BeaconGithubDll.dll"
           Copy-Item "Release/Modules/*" "$stage/WindowsModules" -Exclude ".gitignore"
           Compress-Archive -Path "$stage/*" -DestinationPath "${{ matrix.release_zip }}" -Force
 
