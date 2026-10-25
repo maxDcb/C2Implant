@@ -25,16 +25,19 @@ jobs:
         include:
           - arch: x64
             runner: windows-2022
+            cmake_generator: Visual Studio 17 2022
             cmake_platform: x64
             build_dir: build-test-x64
             conan_install_args: --build=missing
           - arch: x86
             runner: windows-2022
+            cmake_generator: Visual Studio 17 2022
             cmake_platform: Win32
             build_dir: build-test-x86
             conan_install_args: --build=missing
           - arch: arm64
-            runner: windows-11-arm
+            runner: windows-11-vs2026-arm
+            cmake_generator: Visual Studio 18 2026
             cmake_platform: ARM64
             build_dir: build-test-arm64
             conan_install_args: --build=missing;-o;openssl/*:no_asm=True
@@ -71,7 +74,7 @@ jobs:
           cmake `
             -S . `
             -B "${{ matrix.build_dir }}" `
-            -G "Visual Studio 17 2022" `
+            -G "${{ matrix.cmake_generator }}" `
             -A "${{ matrix.cmake_platform }}" `
             -DC2CORE_BUILD_TESTS=ON `
             "-DCONAN_INSTALL_ARGS=${{ matrix.conan_install_args }}"
