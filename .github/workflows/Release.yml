@@ -63,6 +63,7 @@ jobs:
           python -m pip install "conan==2.24.0"
 
       - name: Cache Conan packages
+        id: conan_cache
         uses: actions/cache@v4
         with:
           path: ~/.conan2
@@ -178,6 +179,24 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: ${{ matrix.release_zip }}
           if-no-files-found: error
+
+      - name: Prepare Conan cache after a failed build
+        if: ${{ failure() && steps.conan_cache.outputs.cache-hit != 'true' }}
+        id: recover_conan_cache
+        shell: pwsh
+        run: |
+          if (Test-Path "${{ matrix.build_dir }}/conan/build/generators/conandeps_legacy.cmake") {
+            conan cache clean "*" --temp --build
+            if ($LASTEXITCODE -ne 0) { throw "Conan cache cleanup failed." }
+            "ready=true" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Save completed Conan packages after a failed build
+        if: ${{ failure() && steps.recover_conan_cache.outputs.ready == 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.conan2
+          key: conan-${{ runner.os }}-${{ matrix.arch }}-${{ hashFiles('conanfile.txt') }}
 
   release:
     name: Publish GitHub release
