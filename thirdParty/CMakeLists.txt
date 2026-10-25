@@ -37,13 +37,16 @@ else()
 
 endif()
 
-execute_process(COMMAND cmd.exe /c cd ${C2_DONUT_BUILD_DIR} && "%ProgramFiles%\\Microsoft Visual Studio\\2022\\Enterprise\\Common7\\Tools\\VsDevCmd.bat" -arch=${C2_DONUT_VS_ARCH} && nmake -f ${C2_DONUT_MAKEFILE} RESULT_VARIABLE ret)
-if(NOT ret EQUAL "0")
-	execute_process(COMMAND cmd.exe /c cd ${C2_DONUT_BUILD_DIR} && "%ProgramFiles%\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat" -arch=${C2_DONUT_VS_ARCH} && nmake -f ${C2_DONUT_MAKEFILE} RESULT_VARIABLE ret)
+set(C2_DONUT_VSDEVCMD "${CMAKE_GENERATOR_INSTANCE}/Common7/Tools/VsDevCmd.bat")
+if(NOT EXISTS "${C2_DONUT_VSDEVCMD}")
+	message(FATAL_ERROR "Visual Studio developer command prompt not found: ${C2_DONUT_VSDEVCMD}")
 endif()
-if(NOT ret EQUAL "0")
-	execute_process(COMMAND cmd.exe /c cd ${C2_DONUT_BUILD_DIR} && nmake -f ${C2_DONUT_MAKEFILE} RESULT_VARIABLE ret)
-endif()
+file(TO_NATIVE_PATH "${C2_DONUT_VSDEVCMD}" C2_DONUT_VSDEVCMD_NATIVE)
+file(WRITE "${C2_DONUT_BUILD_DIR}/build-donut.cmd"
+    "@echo off\r\ncall \"${C2_DONUT_VSDEVCMD_NATIVE}\" -arch=${C2_DONUT_VS_ARCH} || exit /b 1\r\nnmake -f ${C2_DONUT_MAKEFILE}\r\nexit /b %errorlevel%\r\n")
+execute_process(COMMAND cmd.exe /c build-donut.cmd
+    WORKING_DIRECTORY "${C2_DONUT_BUILD_DIR}"
+    RESULT_VARIABLE ret)
 if(NOT ret EQUAL "0")
 	message(FATAL_ERROR "Failed to build Donut with ${C2_DONUT_MAKEFILE}")
 endif()
