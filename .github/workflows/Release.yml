@@ -117,6 +117,7 @@ jobs:
             "EnumerateShares.dll",
             "Evasion.dll",
             "GetEnv.dll",
+            "HostContext.dll",
             "Inject.dll",
             "IpConfig.dll",
             "KerberosUseTicket.dll",
