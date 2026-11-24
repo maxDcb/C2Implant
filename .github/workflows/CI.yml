@@ -90,6 +90,27 @@ jobs:
         run: |
           ctest --test-dir "${{ matrix.build_dir }}" --build-config $env:BUILD_TYPE --output-on-failure --timeout 60
 
+      - name: Configure local module contracts
+        shell: pwsh
+        run: |
+          cmake `
+            -S core/modules/tests/local `
+            -B "${{ matrix.build_dir }}-local-contracts" `
+            -G "${{ matrix.cmake_generator }}" `
+            -A "${{ matrix.cmake_platform }}" `
+            "-DC2_BASE64_SOURCE_DIR=${{ github.workspace }}/thirdParty/base64" `
+            "-Dnlohmann_json_DIR=${{ github.workspace }}/${{ matrix.build_dir }}/conan/build/generators"
+
+      - name: Build local module contracts
+        shell: pwsh
+        run: |
+          cmake --build "${{ matrix.build_dir }}-local-contracts" --config $env:BUILD_TYPE -- /m
+
+      - name: Test local module contracts
+        shell: pwsh
+        run: |
+          ctest --test-dir "${{ matrix.build_dir }}-local-contracts" --build-config $env:BUILD_TYPE --output-on-failure --timeout 60
+
       - name: Prepare Conan cache after a failed build
         if: ${{ failure() && steps.conan_cache.outputs.cache-hit != 'true' }}
         id: recover_conan_cache
